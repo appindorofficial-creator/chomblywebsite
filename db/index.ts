@@ -1,13 +1,11 @@
-import { env } from "cloudflare:workers";
-import { drizzle } from "drizzle-orm/d1";
+import { database } from "./raw";
 import * as schema from "./schema";
 
+/**
+ * App routes use `database()` from `db/raw` (D1-compatible SQLite on Node/Azure).
+ * This helper remains for example code that previously used Drizzle+D1.
+ */
 export function getDb() {
-  if (!env.DB) {
-    throw new Error(
-      "Cloudflare D1 binding `DB` is unavailable. Set the `d1` field in .openai/hosting.json to `DB` or let your control plane inject the real binding values before using the database."
-    );
-  }
-
-  return drizzle(env.DB, { schema });
+  void schema;
+  return database();
 }
