@@ -1,0 +1,3 @@
+import {chatGPTSignInPath} from '@/app/chatgpt-auth';
+import {Lang} from '@/lib/catalog';
+export default function AuthGate({lang,path,title}:{lang:Lang,path:string,title:string}){const en=lang==='en';return <section className="shell auth-gate"><img src="/mascot.png" width="84" height="84" alt=""/><h1>{title}</h1><p>{en?'Sign in to save your requests, review professional offers and track your bookings.':'Inicia sesión para guardar tus solicitudes, revisar propuestas y seguir tus reservas.'}</p><a className="button" target="_top" href={chatGPTSignInPath(path)}>{en?'Continue with ChatGPT':'Continuar con ChatGPT'}</a><p className="muted">{en?'You can browse all services without an account.':'Puedes explorar todos los servicios sin una cuenta.'}</p></section>}

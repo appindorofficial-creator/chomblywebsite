@@ -1,0 +1,14 @@
+import {respond,guarded,db,now} from '@/lib/server';
+import {settings} from '@/db/raw';
+import {verifyEvent} from '@/lib/payment';
+import {paymentsEnabled} from '@/config/site';
+export async function POST(req:Request){if(!paymentsEnabled())return respond({error:'NOT_AVAILABLE'},404);return guarded(async()=>{const config=settings();if(!config.WOMPI_EVENTS_SECRET||!config.WOMPI_PUBLIC_KEY?.startsWith('pub_prod_'))return respond({error:'PAYMENTS_UNAVAILABLE'},503);const raw=await req.text();if(raw.length>100000)return respond({error:'BODY_SIZE'},400);const event=JSON.parse(raw);if(!await verifyEvent(event,config.WOMPI_EVENTS_SECRET)||(event.environment&&event.environment!=='prod')||!event.signature.properties.includes('transaction.id'))return respond({error:'INVALID_SIGNATURE'},401);
+ // Fetch the authoritative transaction: currency, merchant and reference are not guaranteed to be signed fields.
+ const id=event.data?.transaction?.id;if(typeof id!=='string'||id.length>100)return respond({error:'TRANSACTION'},422);
+ const res=await fetch('https://production.wompi.co/v1/transactions/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+config.WOMPI_PUBLIC_KEY}});if(!res.ok)return respond({error:'VERIFY_RETRY'},503);const {data:t}=await res.json() as any;
+ if(!t||t.id!==id||(t.merchant?.public_key&&t.merchant.public_key!==config.WOMPI_PUBLIC_KEY))return respond({error:'MERCHANT_MISMATCH'},422);
+ const b=await db().prepare('SELECT * FROM bookings WHERE payment_ref=?').bind(t.reference).first<any>();if(!b)return respond({received:true});if(t.amount_in_cents!==b.amount||t.currency!=='COP')return respond({error:'AMOUNT_MISMATCH'},422);if(b.paid_at)return respond({received:true});
+ if(t.status==='APPROVED'){
+ await db().batch([db().prepare("UPDATE bookings SET status=CASE WHEN status IN ('cancel_requested','cancelled','refund_requested') THEN 'refund_requested' WHEN offer_expires>? AND EXISTS(SELECT 1 FROM holds WHERE booking_id=? AND expires>?) THEN 'confirmed' ELSE 'paid_attention' END,payment_id=?,paid_at=?,updated_at=? WHERE id=? AND paid_at IS NULL").bind(now(),b.id,now(),t.id,now(),now(),b.id),db().prepare("UPDATE holds SET expires=ends WHERE booking_id=? AND EXISTS(SELECT 1 FROM bookings WHERE id=? AND status='confirmed')").bind(b.id,b.id)]);
+ }else if(['DECLINED','VOIDED','ERROR'].includes(t.status)){await db().batch([db().prepare("UPDATE bookings SET status=CASE WHEN status='cancel_requested' THEN 'cancelled' ELSE 'quoted' END,payment_ref=NULL,payment_id=?,updated_at=? WHERE id=? AND paid_at IS NULL AND status IN ('payment_pending','cancel_requested')").bind(t.id,now(),b.id),db().prepare("DELETE FROM holds WHERE booking_id=? AND EXISTS(SELECT 1 FROM bookings WHERE id=? AND status='cancelled')").bind(b.id,b.id)])}
+ return respond({received:true})})}

@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound(){return <main id="main-content" className="not-found"><img src="/brand/v2/chombly-wordmark-dark.png" width="800" height="453" alt="Chombly"/><p className="eyebrow">Página no encontrada</p><h1>Aquí no hay nada.<br/>Ni una croqueta.</h1><p>Parece que tomaste un camino que no existe.</p><Link href="/es-co" className="button">Volver a Chombly</Link></main>}

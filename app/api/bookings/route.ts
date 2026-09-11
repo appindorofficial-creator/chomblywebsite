@@ -1,0 +1,9 @@
+import {identity,input,respond,guarded,db,now,publicBooking} from '@/lib/server';
+import {validateRequest} from '@/lib/request-validation';
+import {legacyProductEnabled} from '@/config/site';
+import {createServerId} from '@/lib/ids';
+export const dynamic='force-dynamic';
+export async function GET(){if(!legacyProductEnabled())return respond({error:'NOT_AVAILABLE'},404);return guarded(async()=>{const u=await identity();if(!u)return respond({error:'AUTH_REQUIRED'},401);const result=await db().prepare('SELECT b.*,p.name AS provider_name FROM bookings b LEFT JOIN professionals p ON p.id=b.provider_id WHERE b.user_id=? ORDER BY b.created_at DESC LIMIT 100').bind(u.id).all();return respond({bookings:result.results.map(publicBooking)})})}
+export async function POST(req:Request){if(!legacyProductEnabled())return respond({error:'NOT_AVAILABLE'},404);return guarded(async()=>{const u=await identity();if(!u)return respond({error:'AUTH_REQUIRED'},401);const result=validateRequest(await input(req));if(!result.ok)return respond({error:result.code},422);const d=result.data;const existing=await db().prepare('SELECT id FROM bookings WHERE user_id=? AND idempotency_key=?').bind(u.id,d.idempotencyKey).first();if(existing)return respond(existing);
+ const count=await db().prepare('SELECT COUNT(*) AS total FROM bookings WHERE user_id=? AND created_at>?').bind(u.id,now()-3600).first<any>();if(count.total>=10)return respond({error:'RATE_LIMIT'},429);
+ const id=createServerId();await db().prepare('INSERT INTO bookings(id,user_id,email,idempotency_key,service,data,status,created_at,updated_at) VALUES(?,?,?,?,?,?,\'requested\',?,?) ON CONFLICT(user_id,idempotency_key) DO NOTHING').bind(id,u.id,u.email,d.idempotencyKey,d.slug,JSON.stringify(d),now(),now()).run();const saved=await db().prepare('SELECT id FROM bookings WHERE user_id=? AND idempotency_key=?').bind(u.id,d.idempotencyKey).first();return respond(saved,201)})}
