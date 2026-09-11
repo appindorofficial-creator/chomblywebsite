@@ -1,12 +1,15 @@
 "use client";
 
-import { cloneElement, useEffect, useId, useRef, useState } from "react";
+import { cloneElement, useEffect, useId, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type FieldErrors, type UseFormRegister } from "react-hook-form";
 import { ArrowRight, CircleCheck, LoaderCircle } from "lucide-react";
 import type { AudienceId } from "@/config/audiences";
 import type { ExperimentId } from "@/config/experiments";
-import { leadSchema, type LeadFormInput, type LeadInput } from "@/lib/leads/schema";
+import type { LocaleCode } from "@/config/site";
+import { useLocale } from "@/components/marketing/locale-context";
+import { t } from "@/lib/locale";
+import { createLeadSchema, type LeadFormInput, type LeadInput } from "@/lib/leads/schema";
 import { track } from "@/lib/analytics/client";
 import { createIdempotencyKey } from "@/lib/ids";
 
@@ -20,19 +23,21 @@ type UtmAttribution = Partial<
   Pick<LeadInput, "utmSource" | "utmMedium" | "utmCampaign" | "utmContent" | "utmTerm">
 >;
 
-const audienceOptions: readonly { value: AudienceId; label: string }[] = [
-  { value: "owner", label: "Familia" },
-  { value: "professional", label: "Profesional" },
-  { value: "clinic", label: "Clínica" },
-  { value: "partner", label: "Aliado" },
-];
+function audienceOptions(locale: LocaleCode): readonly { value: AudienceId; label: string }[] {
+  return [
+    { value: "owner", label: t(locale, "Familia", "Family") },
+    { value: "professional", label: t(locale, "Profesional", "Professional") },
+    { value: "clinic", label: t(locale, "Clínica", "Clinic") },
+    { value: "partner", label: t(locale, "Aliado", "Partner") },
+  ];
+}
 
 export function AudienceForm({
   defaultAudience,
   route,
   experiment,
   compact = false,
-  submitLabel = "Quiero entrar a Chombly",
+  submitLabel,
   defaultOrganizationType,
 }: {
   defaultAudience: AudienceId;
@@ -42,6 +47,10 @@ export function AudienceForm({
   submitLabel?: string;
   defaultOrganizationType?: "company";
 }) {
+  const locale = useLocale();
+  const schema = useMemo(() => createLeadSchema(locale), [locale]);
+  const resolvedSubmit =
+    submitLabel || t(locale, "Quiero entrar a Chombly", "I want to join Chombly");
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState("");
@@ -55,7 +64,7 @@ export function AudienceForm({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<LeadFormInput, unknown, LeadInput>({
-    resolver: zodResolver(leadSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       idempotencyKey: "00000000-0000-4000-8000-000000000000",
       audience: defaultAudience,
@@ -89,10 +98,14 @@ export function AudienceForm({
       });
     } catch {
       setServerError(
-        "Este navegador no ofrece generación aleatoria segura. Actualízalo antes de enviar el formulario.",
+        t(
+          locale,
+          "Este navegador no ofrece generación aleatoria segura. Actualízalo antes de enviar el formulario.",
+          "This browser does not provide secure random generation. Update it before submitting the form.",
+        ),
       );
     }
-  }, []);
+  }, [locale]);
 
   const audience = watch("audience") || defaultAudience;
   const contactPreference = watch("contactPreference") || "email";
@@ -115,7 +128,13 @@ export function AudienceForm({
   async function submit(data: LeadInput) {
     setServerError(null);
     if (!idReady || !idempotencyKey) {
-      setServerError("No pudimos preparar una solicitud segura. Actualiza la página e intenta nuevamente.");
+      setServerError(
+        t(
+          locale,
+          "No pudimos preparar una solicitud segura. Actualiza la página e intenta nuevamente.",
+          "We could not prepare a secure request. Refresh the page and try again.",
+        ),
+      );
       return;
     }
     const payload: LeadInput = {
@@ -155,8 +174,16 @@ export function AudienceForm({
       const reason = error instanceof Error ? error.message : "SUBMIT_FAILED";
       setServerError(
         reason === "RATE_LIMIT"
-          ? "Recibimos varias solicitudes recientes con este contacto. Intenta más tarde."
-          : "No pudimos registrar tu interés. Revisa tu conexión e intenta nuevamente.",
+          ? t(
+              locale,
+              "Recibimos varias solicitudes recientes con este contacto. Intenta más tarde.",
+              "We received several recent requests with this contact. Please try again later.",
+            )
+          : t(
+              locale,
+              "No pudimos registrar tu interés. Revisa tu conexión e intenta nuevamente.",
+              "We could not register your interest. Check your connection and try again.",
+            ),
       );
       track("form_submission_failed", {
         route,
@@ -174,9 +201,25 @@ export function AudienceForm({
     return (
       <div className="form-success" role="status">
         <CircleCheck aria-hidden="true" />
-        <p className="eyebrow">Recibido</p>
-        <h2>{ownerSuccess ? "Ya estás más cerca de Chombly. 🐾" : "Nos encantará conocer lo que haces."}</h2>
-        <p>{ownerSuccess ? "Te avisaremos cuando llegue el momento de entrar." : "Recibimos tu información. Nuestro equipo podrá ponerse en contacto contigo por el medio que elegiste."}</p>
+        <p className="eyebrow">{t(locale, "Recibido", "Received")}</p>
+        <h2>
+          {ownerSuccess
+            ? t(locale, "Ya estás más cerca de Chombly. 🐾", "You are closer to Chombly. 🐾")
+            : t(locale, "Nos encantará conocer lo que haces.", "We would love to learn what you do.")}
+        </h2>
+        <p>
+          {ownerSuccess
+            ? t(
+                locale,
+                "Te avisaremos cuando llegue el momento de entrar.",
+                "We will let you know when it is time to join.",
+              )
+            : t(
+                locale,
+                "Recibimos tu información. Nuestro equipo podrá ponerse en contacto contigo por el medio que elegiste.",
+                "We received your information. Our team may contact you through the channel you chose.",
+              )}
+        </p>
       </div>
     );
   }
@@ -189,15 +232,17 @@ export function AudienceForm({
       noValidate
     >
       <div className="honeypot" aria-hidden="true">
-        <label htmlFor="website">Sitio web</label>
+        <label htmlFor="website">{t(locale, "Sitio web", "Website")}</label>
         <input id="website" tabIndex={-1} autoComplete="off" {...register("website")} />
       </div>
 
       {!compact ? (
         <fieldset className="audience-selector">
-          <legend>¿Qué lugar ocupas en el universo pet?</legend>
+          <legend>
+            {t(locale, "¿Qué lugar ocupas en el universo pet?", "Where do you fit in the pet universe?")}
+          </legend>
           <div>
-            {audienceOptions.map((option) => (
+            {audienceOptions(locale).map((option) => (
               <label key={option.value} data-selected={audience === option.value}>
                 <input
                   type="radio"
@@ -224,50 +269,93 @@ export function AudienceForm({
       ) : null}
 
       <div className="form-grid form-grid-two">
-        <Field label="Nombre" error={errors.name?.message}>
+        <Field label={t(locale, "Nombre", "Name")} error={errors.name?.message}>
           <input autoComplete="name" {...register("name")} />
         </Field>
-        <Field label="Ciudad" error={errors.city?.message}>
+        <Field label={t(locale, "Ciudad", "City")} error={errors.city?.message}>
           <input autoComplete="address-level2" {...register("city")} />
         </Field>
       </div>
 
       <fieldset className="contact-choice">
-        <legend>¿Cómo prefieres que te contactemos?</legend>
-        <label><input type="radio" value="email" {...register("contactPreference")} /> Correo</label>
-        <label><input type="radio" value="phone" {...register("contactPreference")} /> Teléfono</label>
+        <legend>
+          {t(locale, "¿Cómo prefieres que te contactemos?", "How should we contact you?")}
+        </legend>
+        <label>
+          <input type="radio" value="email" {...register("contactPreference")} />{" "}
+          {t(locale, "Correo", "Email")}
+        </label>
+        <label>
+          <input type="radio" value="phone" {...register("contactPreference")} />{" "}
+          {t(locale, "Teléfono", "Phone")}
+        </label>
       </fieldset>
 
       <div className="form-grid form-grid-two">
-        <Field label={`Correo${contactPreference === "email" ? " *" : ""}`} error={errors.email?.message}>
+        <Field
+          label={`${t(locale, "Correo", "Email")}${contactPreference === "email" ? " *" : ""}`}
+          error={errors.email?.message}
+        >
           <input type="email" autoComplete="email" {...register("email")} />
         </Field>
-        <Field label={`Teléfono${contactPreference === "phone" ? " *" : ""}`} error={errors.phone?.message}>
+        <Field
+          label={`${t(locale, "Teléfono", "Phone")}${contactPreference === "phone" ? " *" : ""}`}
+          error={errors.phone?.message}
+        >
           <input type="tel" autoComplete="tel" {...register("phone")} />
         </Field>
       </div>
 
-      {audience === "owner" ? <OwnerFields register={register} errors={errors} /> : null}
-      {audience === "professional" ? <ProfessionalFields register={register} errors={errors} /> : null}
-      {audience === "clinic" ? <ClinicFields register={register} errors={errors} /> : null}
-      {audience === "partner" ? <PartnerFields register={register} errors={errors} /> : null}
+      {audience === "owner" ? <OwnerFields locale={locale} register={register} errors={errors} /> : null}
+      {audience === "professional" ? (
+        <ProfessionalFields locale={locale} register={register} errors={errors} />
+      ) : null}
+      {audience === "clinic" ? <ClinicFields locale={locale} register={register} errors={errors} /> : null}
+      {audience === "partner" ? <PartnerFields locale={locale} register={register} errors={errors} /> : null}
 
       <div className="form-boundary">
-        Este formulario no solicita síntomas, historia clínica ni credenciales. No
-        crea una cuenta ni activa un servicio.
+        {t(
+          locale,
+          "Este formulario no solicita síntomas, historia clínica ni credenciales. No crea una cuenta ni activa un servicio.",
+          "This form does not ask for symptoms, clinical history, or credentials. It does not create an account or activate a service.",
+        )}
       </div>
 
       <label className="consent-row">
         <input type="checkbox" {...register("consentResearch")} />
-        <span>Acepto que Chombly use estos datos para responder a mi solicitud y contactarme sobre Chombly. *</span>
+        <span>
+          {t(
+            locale,
+            "Acepto que Chombly use estos datos para responder a mi solicitud y contactarme sobre Chombly. *",
+            "I agree that Chombly may use this data to respond to my request and contact me about Chombly. *",
+          )}
+        </span>
       </label>
-      {errors.consentResearch ? <p className="field-error" role="alert">Necesitamos tu autorización para registrar la solicitud.</p> : null}
+      {errors.consentResearch ? (
+        <p className="field-error" role="alert">
+          {t(
+            locale,
+            "Necesitamos tu autorización para registrar la solicitud.",
+            "We need your authorization to register the request.",
+          )}
+        </p>
+      ) : null}
       <label className="consent-row">
         <input type="checkbox" {...register("consentUpdates")} />
-        <span>También quiero recibir novedades ocasionales de Chombly.</span>
+        <span>
+          {t(
+            locale,
+            "También quiero recibir novedades ocasionales de Chombly.",
+            "I also want to receive occasional updates from Chombly.",
+          )}
+        </span>
       </label>
 
-      {serverError ? <div className="form-error" role="alert">{serverError}</div> : null}
+      {serverError ? (
+        <div className="form-error" role="alert">
+          {serverError}
+        </div>
+      ) : null}
 
       <button
         aria-busy={isSubmitting}
@@ -276,138 +364,174 @@ export function AudienceForm({
         disabled={isSubmitting || !idReady}
       >
         {isSubmitting ? <LoaderCircle className="spin" aria-hidden="true" /> : null}
-        {submitLabel} {!isSubmitting ? <ArrowRight size={18} aria-hidden="true" /> : null}
+        {resolvedSubmit} {!isSubmitting ? <ArrowRight size={18} aria-hidden="true" /> : null}
       </button>
     </form>
   );
 }
 
 type FormParts = {
+  locale: LocaleCode;
   register: UseFormRegister<LeadFormInput>;
   errors: FieldErrors<LeadFormInput>;
 };
 
-function OwnerFields({ register, errors }: FormParts) {
+function selectLabel(locale: LocaleCode) {
+  return t(locale, "Selecciona", "Select");
+}
+
+function OwnerFields({ locale, register, errors }: FormParts) {
   return (
     <div className="form-grid form-grid-two">
-      <Field label="Momento que más te interesa" error={errors.ownerTrigger?.message}>
+      <Field
+        label={t(locale, "Momento que más te interesa", "Moment that interests you most")}
+        error={errors.ownerTrigger?.message}
+      >
         <select {...register("ownerTrigger")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
-          <option value="new-pet">Una nueva mascota</option>
-          <option value="everyday-care">Cuidado cotidiano</option>
-          <option value="something-changed">Cuando algo cambia</option>
-          <option value="continuity">Continuidad entre momentos</option>
-          <option value="documents">Documentos e información</option>
-          <option value="care-navigator">Probar una guía de cuidado</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
+          <option value="new-pet">{t(locale, "Una nueva mascota", "A new pet")}</option>
+          <option value="everyday-care">{t(locale, "Cuidado cotidiano", "Everyday care")}</option>
+          <option value="something-changed">{t(locale, "Cuando algo cambia", "When something changes")}</option>
+          <option value="continuity">{t(locale, "Continuidad entre momentos", "Continuity between moments")}</option>
+          <option value="documents">{t(locale, "Documentos e información", "Documents and information")}</option>
+          <option value="care-navigator">{t(locale, "Probar una guía de cuidado", "Try a care guide")}</option>
         </select>
       </Field>
-      <Field label="Etapa de vida" error={errors.petStage?.message}>
+      <Field label={t(locale, "Etapa de vida", "Life stage")} error={errors.petStage?.message}>
         <select {...register("petStage")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
-          <option value="new">Recién llegada</option>
-          <option value="young">Joven</option>
-          <option value="adult">Adulta</option>
-          <option value="senior">Senior</option>
-          <option value="multiple">Varias mascotas o etapas</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
+          <option value="new">{t(locale, "Recién llegada", "Newly arrived")}</option>
+          <option value="young">{t(locale, "Joven", "Young")}</option>
+          <option value="adult">{t(locale, "Adulta", "Adult")}</option>
+          <option value="senior">{t(locale, "Senior", "Senior")}</option>
+          <option value="multiple">{t(locale, "Varias mascotas o etapas", "Multiple pets or stages")}</option>
         </select>
       </Field>
     </div>
   );
 }
 
-function ProfessionalFields({ register, errors }: FormParts) {
+function ProfessionalFields({ locale, register, errors }: FormParts) {
   return (
     <div className="form-grid form-grid-three">
-      <Field label="Perfil" error={errors.professionalRole?.message}>
+      <Field label={t(locale, "Perfil", "Profile")} error={errors.professionalRole?.message}>
         <select {...register("professionalRole")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
-          <option value="veterinarian">Veterinario/a</option>
-          <option value="vet-student">Estudiante de veterinaria</option>
-          <option value="care-professional">Otro profesional de cuidado</option>
-          <option value="other">Otro</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
+          <option value="veterinarian">{t(locale, "Veterinario/a", "Veterinarian")}</option>
+          <option value="vet-student">{t(locale, "Estudiante de veterinaria", "Veterinary student")}</option>
+          <option value="care-professional">{t(locale, "Otro profesional de cuidado", "Other care professional")}</option>
+          <option value="other">{t(locale, "Otro", "Other")}</option>
         </select>
       </Field>
-      <Field label="Experiencia" error={errors.experience?.message}>
+      <Field label={t(locale, "Experiencia", "Experience")} error={errors.experience?.message}>
         <select {...register("experience")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
-          <option value="training">En formación</option>
-          <option value="0-3">0–3 años</option>
-          <option value="4-10">4–10 años</option>
-          <option value="11-plus">11+ años</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
+          <option value="training">{t(locale, "En formación", "In training")}</option>
+          <option value="0-3">{t(locale, "0–3 años", "0–3 years")}</option>
+          <option value="4-10">{t(locale, "4–10 años", "4–10 years")}</option>
+          <option value="11-plus">{t(locale, "11+ años", "11+ years")}</option>
         </select>
       </Field>
-      <Field label="Interés" error={errors.interest?.message}>
+      <Field label={t(locale, "Interés", "Interest")} error={errors.interest?.message}>
         <select {...register("interest")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
-          <option value="research">Conocer Chombly</option>
-          <option value="guided-test">Explorar cómo participar</option>
-          <option value="advisory">Compartir mi experiencia</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
+          <option value="research">{t(locale, "Conocer Chombly", "Learn about Chombly")}</option>
+          <option value="guided-test">{t(locale, "Explorar cómo participar", "Explore how to participate")}</option>
+          <option value="advisory">{t(locale, "Compartir mi experiencia", "Share my experience")}</option>
         </select>
       </Field>
     </div>
   );
 }
 
-function ClinicFields({ register, errors }: FormParts) {
+function ClinicFields({ locale, register, errors }: FormParts) {
   return (
     <div className="form-grid form-grid-two">
-      <Field label="Clínica u organización" error={errors.organization?.message}>
+      <Field
+        label={t(locale, "Clínica u organización", "Clinic or organization")}
+        error={errors.organization?.message}
+      >
         <input autoComplete="organization" {...register("organization")} />
       </Field>
-      <Field label="Tu rol" error={errors.clinicRole?.message}>
+      <Field label={t(locale, "Tu rol", "Your role")} error={errors.clinicRole?.message}>
         <select {...register("clinicRole")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
-          <option value="owner">Propiedad / liderazgo</option>
-          <option value="director">Dirección médica</option>
-          <option value="operations">Operaciones</option>
-          <option value="clinical">Equipo clínico</option>
-          <option value="other">Otro</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
+          <option value="owner">{t(locale, "Propiedad / liderazgo", "Ownership / leadership")}</option>
+          <option value="director">{t(locale, "Dirección médica", "Medical direction")}</option>
+          <option value="operations">{t(locale, "Operaciones", "Operations")}</option>
+          <option value="clinical">{t(locale, "Equipo clínico", "Clinical team")}</option>
+          <option value="other">{t(locale, "Otro", "Other")}</option>
         </select>
       </Field>
-      <Field label="Tamaño del equipo" error={errors.teamSize?.message}>
+      <Field label={t(locale, "Tamaño del equipo", "Team size")} error={errors.teamSize?.message}>
         <select {...register("teamSize")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
           <option value="1-5">1–5</option>
           <option value="6-20">6–20</option>
           <option value="21-50">21–50</option>
           <option value="51-plus">51+</option>
         </select>
       </Field>
-      <Field label="Interés" error={errors.interest?.message}>
+      <Field label={t(locale, "Interés", "Interest")} error={errors.interest?.message}>
         <select {...register("interest")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
-          <option value="research">Conocer Chombly</option>
-          <option value="pilot">Explorar una colaboración</option>
-          <option value="advisory">Compartir mi experiencia</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
+          <option value="research">{t(locale, "Conocer Chombly", "Learn about Chombly")}</option>
+          <option value="pilot">{t(locale, "Explorar una colaboración", "Explore a collaboration")}</option>
+          <option value="advisory">{t(locale, "Compartir mi experiencia", "Share my experience")}</option>
         </select>
       </Field>
     </div>
   );
 }
 
-function PartnerFields({ register, errors }: FormParts) {
+function PartnerFields({ locale, register, errors }: FormParts) {
   return (
     <div className="form-grid form-grid-two">
-      <Field label="Organización" error={errors.organization?.message}>
+      <Field label={t(locale, "Organización", "Organization")} error={errors.organization?.message}>
         <input autoComplete="organization" {...register("organization")} />
       </Field>
-      <Field label="Tipo de organización" error={errors.organizationType?.message}>
+      <Field
+        label={t(locale, "Tipo de organización", "Organization type")}
+        error={errors.organizationType?.message}
+      >
         <select {...register("organizationType")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
-          <option value="foundation">Fundación</option>
-          <option value="community">Comunidad</option>
-          <option value="company">Empresa</option>
-          <option value="academic">Académica</option>
-          <option value="other">Otra</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
+          <option value="foundation">{t(locale, "Fundación", "Foundation")}</option>
+          <option value="community">{t(locale, "Comunidad", "Community")}</option>
+          <option value="company">{t(locale, "Empresa", "Company")}</option>
+          <option value="academic">{t(locale, "Académica", "Academic")}</option>
+          <option value="other">{t(locale, "Otra", "Other")}</option>
         </select>
       </Field>
-      <Field label="Interés" error={errors.interest?.message}>
+      <Field label={t(locale, "Interés", "Interest")} error={errors.interest?.message}>
         <select {...register("interest")} defaultValue="">
-          <option value="" disabled>Selecciona</option>
-          <option value="community-learning">Trabajar con una comunidad</option>
-          <option value="research">Conocer Chombly</option>
-          <option value="pilot">Explorar una iniciativa</option>
-          <option value="partnership">Explorar alianza</option>
+          <option value="" disabled>
+            {selectLabel(locale)}
+          </option>
+          <option value="community-learning">
+            {t(locale, "Trabajar con una comunidad", "Work with a community")}
+          </option>
+          <option value="research">{t(locale, "Conocer Chombly", "Learn about Chombly")}</option>
+          <option value="pilot">{t(locale, "Explorar una iniciativa", "Explore an initiative")}</option>
+          <option value="partnership">{t(locale, "Explorar alianza", "Explore a partnership")}</option>
         </select>
       </Field>
     </div>
@@ -436,7 +560,11 @@ function Field({
     <label className="form-field">
       <span>{label}</span>
       {control}
-      {error ? <small id={errorId} role="alert">{error}</small> : null}
+      {error ? (
+        <small id={errorId} role="alert">
+          {error}
+        </small>
+      ) : null}
     </label>
   );
 }

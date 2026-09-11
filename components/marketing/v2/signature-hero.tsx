@@ -3,27 +3,34 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { TrackedLink } from "@/components/tracked-link";
-import { MARKETING_V2 } from "@/config/marketing-content-v2";
+import { useLocale, useMarketing } from "@/components/marketing/locale-context";
+import { localizePath, t } from "@/lib/locale";
 import { track } from "@/lib/analytics/client";
+import type { LocaleCode } from "@/config/site";
 
-const MOMENTS = [
-  { image: "/images/v2/moment-01.webp", fragment: "Una duda." },
-  { image: "/images/v2/moment-02.webp", fragment: "Un recordatorio." },
-  { image: "/images/v2/moment-03.webp", fragment: "Un profesional." },
-  { image: "/images/v2/moment-04.webp", fragment: "Algo que comió." },
-  { image: "/images/v2/moment-05.webp", fragment: "Una vacuna." },
-  { image: "/images/v2/moment-06.webp", fragment: "Una cita." },
-  { image: "/images/v2/moment-07.webp", fragment: "Un cambio de comportamiento." },
-  { image: "/images/v2/moment-08.webp", fragment: "Una noche que no te deja tranquilo." },
-  { image: "/images/v2/moment-09.webp", fragment: "Una nueva rutina." },
-  { image: "/images/v2/moment-10.webp", fragment: "Un momento juntos." },
-] as const;
+function momentsFor(locale: LocaleCode) {
+  return [
+    { image: "/images/v2/moment-01.webp", fragment: t(locale, "Una duda.", "A question.") },
+    { image: "/images/v2/moment-02.webp", fragment: t(locale, "Un recordatorio.", "A reminder.") },
+    { image: "/images/v2/moment-03.webp", fragment: t(locale, "Un profesional.", "A professional.") },
+    { image: "/images/v2/moment-04.webp", fragment: t(locale, "Algo que comió.", "Something they ate.") },
+    { image: "/images/v2/moment-05.webp", fragment: t(locale, "Una vacuna.", "A vaccine.") },
+    { image: "/images/v2/moment-06.webp", fragment: t(locale, "Una cita.", "An appointment.") },
+    { image: "/images/v2/moment-07.webp", fragment: t(locale, "Un cambio de comportamiento.", "A behavior change.") },
+    { image: "/images/v2/moment-08.webp", fragment: t(locale, "Una noche que no te deja tranquilo.", "A night that won't let you rest.") },
+    { image: "/images/v2/moment-09.webp", fragment: t(locale, "Una nueva rutina.", "A new routine.") },
+    { image: "/images/v2/moment-10.webp", fragment: t(locale, "Un momento juntos.", "A moment together.") },
+  ] as const;
+}
 
 function savesData(): boolean {
   return Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
 }
 
 export function SignatureHero() {
+  const locale = useLocale();
+  const copy = useMarketing();
+  const MOMENTS = momentsFor(locale);
   const rootRef = useRef<HTMLElement>(null);
   const [staticMode, setStaticMode] = useState(false);
 
@@ -111,19 +118,22 @@ export function SignatureHero() {
           ))}
         </div>
         <div className="v21-hero-opening v2-shell">
-          <p className="v2-kicker"><span />{MARKETING_V2.stage}</p>
-          <h1 id="v21-hero-title">Tu mascota cuenta contigo.<span>Tú puedes contar con Chombly.</span></h1>
-          <p className="v21-hero-descriptor">{MARKETING_V2.home.descriptor}</p>
+          <p className="v2-kicker"><span />{copy.stage}</p>
+          <h1 id="v21-hero-title">
+            {t(locale, "Tu mascota cuenta contigo.", "Your pet counts on you.")}
+            <span>{t(locale, "Tú puedes contar con Chombly.", "You can count on Chombly.")}</span>
+          </h1>
+          <p className="v21-hero-descriptor">{copy.home.descriptor}</p>
           <div className="v21-hero-actions">
-            <TrackedLink className="v2-button" href="/es-co/join?audience=owner" eventProperties={{ cta_id: "hero_owner_interest", placement: "hero", audience: "owner" }}>{MARKETING_V2.ctas.owner}<ArrowRight aria-hidden="true" size={18} /></TrackedLink>
-            <TrackedLink className="v2-text-link" href="/es-co/join?audience=professional" eventProperties={{ cta_id: "hero_b2b_interest", placement: "hero", audience: "professional" }}>{MARKETING_V2.ctas.b2b}<ArrowUpRight aria-hidden="true" size={17} /></TrackedLink>
+            <TrackedLink className="v2-button" href={localizePath(locale, "/join", "audience=owner")} eventProperties={{ cta_id: "hero_owner_interest", placement: "hero", audience: "owner" }}>{copy.ctas.owner}<ArrowRight aria-hidden="true" size={18} /></TrackedLink>
+            <TrackedLink className="v2-text-link" href={localizePath(locale, "/join", "audience=professional")} eventProperties={{ cta_id: "hero_b2b_interest", placement: "hero", audience: "professional" }}>{copy.ctas.b2b}<ArrowUpRight aria-hidden="true" size={17} /></TrackedLink>
           </div>
-          <p className="v21-hero-microcopy">{MARKETING_V2.ctas.ownerMicrocopy}</p>
+          <p className="v21-hero-microcopy">{copy.ctas.ownerMicrocopy}</p>
         </div>
-        <div className="v21-hero-beat v21-beat-life" aria-hidden="true"><p>Una mascota.</p><strong>Miles de momentos.</strong></div>
-        <div className="v21-hero-beat v21-beat-fragment" aria-hidden="true"><strong>Cuidar también es conectar lo que hoy está separado.</strong></div>
-        <div className="v21-hero-beat v21-beat-resolve" aria-hidden="true"><strong>Chombly reúne lo que necesitas<br />para que tú te concentres en lo importante.</strong><em>Tu mascota.</em></div>
-        <div className="v21-hero-beat v21-beat-bridge" aria-hidden="true"><strong>Aclara tus dudas.</strong><strong>Encuentra ayuda.</strong><strong>Sigue cuidando.</strong></div>
+        <div className="v21-hero-beat v21-beat-life" aria-hidden="true"><p>{t(locale, "Una mascota.", "One pet.")}</p><strong>{t(locale, "Miles de momentos.", "Thousands of moments.")}</strong></div>
+        <div className="v21-hero-beat v21-beat-fragment" aria-hidden="true"><strong>{t(locale, "Cuidar también es conectar lo que hoy está separado.", "Care also means connecting what today feels scattered.")}</strong></div>
+        <div className="v21-hero-beat v21-beat-resolve" aria-hidden="true"><strong>{t(locale, "Chombly reúne lo que necesitas", "Chombly brings together what you need")}<br />{t(locale, "para que tú te concentres en lo importante.", "so you can focus on what matters.")}</strong><em>{t(locale, "Tu mascota.", "Your pet.")}</em></div>
+        <div className="v21-hero-beat v21-beat-bridge" aria-hidden="true"><strong>{t(locale, "Aclara tus dudas.", "Get clarity.")}</strong><strong>{t(locale, "Encuentra ayuda.", "Find help.")}</strong><strong>{t(locale, "Sigue cuidando.", "Keep caring.")}</strong></div>
         <div className="v21-hero-exit" aria-hidden="true" />
       </div>
     </section>

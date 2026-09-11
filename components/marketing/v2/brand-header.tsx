@@ -5,26 +5,35 @@ import Link from "next/link";
 import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import { BrandLogo } from "@/components/marketing/v2/brand-logo";
 import { TrackedLink } from "@/components/tracked-link";
-import { MARKETING_V2 } from "@/config/marketing-content-v2";
-
-const primaryNavigation = [
-  ["/es-co/pet-owners", MARKETING_V2.navigation.families],
-  ["/es-co/professionals", MARKETING_V2.navigation.professionals],
-  ["/es-co/about", MARKETING_V2.navigation.about],
-] as const;
-
-const organizationNavigation = [
-  ["/es-co/clinics", "Clínicas"],
-  ["/es-co/businesses", "Negocios pet"],
-  ["/es-co/partners", "Partners"],
-] as const;
-
-const mobileNavigation = [primaryNavigation[0], primaryNavigation[1], ...organizationNavigation, primaryNavigation[2]] as const;
+import { LanguageToggle } from "@/components/marketing/language-toggle";
+import { useLocale, useMarketing } from "@/components/marketing/locale-context";
+import { localizePath, t } from "@/lib/locale";
 
 export function BrandHeader() {
+  const locale = useLocale();
+  const copy = useMarketing();
   const [onDark, setOnDark] = useState(false);
   const [solid, setSolid] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const primaryNavigation = [
+    [localizePath(locale, "/pet-owners"), copy.navigation.families],
+    [localizePath(locale, "/professionals"), copy.navigation.professionals],
+    [localizePath(locale, "/about"), copy.navigation.about],
+  ] as const;
+
+  const organizationNavigation = [
+    [localizePath(locale, "/clinics"), copy.navigation.clinics],
+    [localizePath(locale, "/businesses"), copy.navigation.businesses],
+    [localizePath(locale, "/partners"), copy.navigation.partners],
+  ] as const;
+
+  const mobileNavigation = [
+    primaryNavigation[0],
+    primaryNavigation[1],
+    ...organizationNavigation,
+    primaryNavigation[2],
+  ] as const;
 
   useEffect(() => {
     let frame = 0;
@@ -61,47 +70,66 @@ export function BrandHeader() {
     <header className={`v2-header ${solid ? "is-solid" : ""} ${onDark || menuOpen ? "is-on-dark" : ""} ${menuOpen ? "is-menu-open" : ""}`}>
       <div className="v2-shell v2-header-row">
         <BrandLogo tone={onDark || menuOpen ? "light" : "dark"} />
-        <nav className="v2-desktop-nav" aria-label="Navegación principal">
-          {primaryNavigation.slice(0, 2).map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}
+        <nav className="v2-desktop-nav" aria-label={t(locale, "Navegación principal", "Main navigation")}>
+          {primaryNavigation.slice(0, 2).map(([href, label]) => (
+            <Link key={href} href={href}>
+              {label}
+            </Link>
+          ))}
           <details className="v2-nav-group">
-            <summary>{MARKETING_V2.navigation.organizations}<ChevronDown aria-hidden="true" size={14} /></summary>
-            <div>{organizationNavigation.map(([href, label]) => <Link key={href} href={href}>{label}<ArrowUpRight aria-hidden="true" size={13} /></Link>)}</div>
+            <summary>
+              {copy.navigation.organizations}
+              <ChevronDown aria-hidden="true" size={14} />
+            </summary>
+            <div>
+              {organizationNavigation.map(([href, label]) => (
+                <Link key={href} href={href}>
+                  {label}
+                  <ArrowUpRight aria-hidden="true" size={13} />
+                </Link>
+              ))}
+            </div>
           </details>
           <Link href={primaryNavigation[2][0]}>{primaryNavigation[2][1]}</Link>
         </nav>
-        <TrackedLink
-          className="v2-button v2-button-compact v2-header-cta"
-          href="/es-co/join?audience=owner"
-          eventProperties={{ cta_id: "header_owner_interest", placement: "header", audience: "owner" }}
-        >
-          Quiero Chombly <ArrowUpRight aria-hidden="true" size={16} />
-        </TrackedLink>
-        <button
-          className="v2-menu-toggle"
-          type="button"
-          aria-expanded={menuOpen}
-          aria-controls="v2-mobile-menu"
-          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-        </button>
+        <div className="v2-header-actions">
+          <TrackedLink
+            className="v2-button v2-button-compact v2-header-cta"
+            href={localizePath(locale, "/join", "audience=owner")}
+            eventProperties={{ cta_id: "header_owner_interest", placement: "header", audience: "owner" }}
+          >
+            {t(locale, "Quiero Chombly", "I want Chombly")}{" "}
+            <ArrowUpRight aria-hidden="true" size={16} />
+          </TrackedLink>
+          <LanguageToggle />
+          <button
+            className="v2-menu-toggle"
+            type="button"
+            aria-expanded={menuOpen}
+            aria-controls="v2-mobile-menu"
+            aria-label={menuOpen ? t(locale, "Cerrar menú", "Close menu") : t(locale, "Abrir menú", "Open menu")}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          </button>
+        </div>
       </div>
       <div id="v2-mobile-menu" className={`v2-mobile-menu ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
-        <nav aria-label="Navegación móvil">
+        <nav aria-label={t(locale, "Navegación móvil", "Mobile navigation")}>
           {mobileNavigation.map(([href, label], index) => (
             <Link key={href} href={href} tabIndex={menuOpen ? 0 : -1} onClick={() => setMenuOpen(false)}>
-              <span>0{index + 1}</span>{label}
+              <span>0{index + 1}</span>
+              {label}
             </Link>
           ))}
           <TrackedLink
             className="v2-button"
-            href="/es-co/join?audience=owner"
+            href={localizePath(locale, "/join", "audience=owner")}
             tabIndex={menuOpen ? 0 : -1}
             onClick={() => setMenuOpen(false)}
             eventProperties={{ cta_id: "mobile_menu_owner_interest", placement: "mobile_menu", audience: "owner" }}
           >
-            {MARKETING_V2.ctas.owner} <ArrowUpRight aria-hidden="true" size={18} />
+            {copy.ctas.owner} <ArrowUpRight aria-hidden="true" size={18} />
           </TrackedLink>
         </nav>
       </div>

@@ -15,6 +15,51 @@
 .v2-brand-logo img { height: auto; width: 100%; }
 .v2-desktop-nav { font-size: .9rem; }
 
+.v2-header-actions {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  justify-self: end;
+  margin-left: auto;
+}
+
+.v2-lang-toggle {
+  align-items: center;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1;
+  min-height: 34px;
+  opacity: .88;
+  order: 2;
+  padding: 0 12px;
+  text-decoration: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.v2-header-cta {
+  order: 1;
+}
+
+.v2-header-actions .v2-menu-toggle {
+  order: 3;
+}
+
+.v2-lang-toggle:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.v2-footer-bottom {
+  align-items: center;
+  gap: 16px;
+}
+
 /* Signature Hero */
 .v21-signature-hero {
   background: var(--ivory);

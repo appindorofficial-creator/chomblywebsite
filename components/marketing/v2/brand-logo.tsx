@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useLocale } from "@/components/marketing/locale-context";
+import { localizePath } from "@/lib/locale";
 
 type BrandLogoProps = {
   tone?: "dark" | "light" | "lime";
@@ -11,6 +15,7 @@ export function BrandLogo({
   markOnly = false,
   className = "",
 }: BrandLogoProps) {
+  const locale = useLocale();
   const src = markOnly
     ? tone === "lime"
       ? "/brand/v2/chombly-mark-lime.png"
@@ -26,8 +31,8 @@ export function BrandLogo({
   return (
     <Link
       className={`v2-brand-logo ${markOnly ? "is-mark" : ""} ${className}`}
-      href="/es-co"
-      aria-label="Chombly, inicio"
+      href={localizePath(locale)}
+      aria-label="Chombly"
     >
       <img
         src={src}

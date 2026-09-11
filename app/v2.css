@@ -540,8 +540,11 @@ body.v2-menu-open { overflow: hidden; }
 .v2-footer-egg-visual img { height: 130px; object-fit: contain; width: 124px; }
 .v2-footer-egg-visual span { background: var(--lavender); bottom: 3px; color: var(--graphite); font-family: var(--font-body); font-size: .55rem; font-weight: 900; left: 0; padding: 4px 7px; position: absolute; text-transform: uppercase; }
 .v2-footer-egg h2 { color: #fff; font-size: clamp(1.8rem, 3vw, 3.1rem); line-height: 1; }
-.v2-footer-egg p { color: #aab4b0; font-family: var(--font-body); font-size: .78rem; margin-top: 8px; }
-.v2-egg-top { align-items: center; color: var(--lime); display: flex; font-family: var(--font-body); font-size: .78rem; font-weight: 800; gap: 8px; min-height: 44px; }
+.v2-footer-egg p { color: #aab4b0; font-family: var(--font-body); font-size: .78rem; margin-top: 8px; max-width: 36ch; }
+.v2-egg-cta { align-items: center; color: var(--lime); display: inline-flex; font-family: var(--font-body); font-size: .78rem; font-weight: 800; gap: 8px; margin-top: 14px; min-height: 44px; }
+.v2-egg-top { align-items: center; color: #c6d0cb; display: flex; font-family: var(--font-body); font-size: .78rem; font-weight: 800; gap: 8px; min-height: 44px; }
+.v2-egg-cta:hover,
+.v2-egg-top:hover { color: #fff; }
 
 /* Internal audience pages */
 .v2-audience-page { --audience-accent: var(--lavender); background: var(--ivory); }

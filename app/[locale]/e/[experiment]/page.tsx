@@ -6,6 +6,7 @@ import { EventBeacon } from "@/components/analytics-beacon";
 import { EXPERIMENTS, type ExperimentId } from "@/config/experiments";
 import { assignVariant, safeAnonymousId } from "@/lib/experiments/assign";
 import { metadataFor } from "@/lib/seo";
+import { isLocale } from "@/lib/locale";
 
 function isExperimentId(value: string): value is ExperimentId {
   return value in EXPERIMENTS;
@@ -14,26 +15,28 @@ function isExperimentId(value: string): value is ExperimentId {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ experiment: string }>;
+  params: Promise<{ locale: string; experiment: string }>;
 }): Promise<Metadata> {
-  const { experiment } = await params;
+  const { locale, experiment } = await params;
   if (!isExperimentId(experiment)) return {};
   const definition = EXPERIMENTS[experiment];
+  const pathLocale = isLocale(locale) ? locale : "es-co";
   return metadataFor(
     definition.title,
     definition.variants[0].body,
-    `/es-co/e/${experiment}`,
-    { noindex: true },
+    `/${pathLocale}/e/${experiment}`,
+    { noindex: true, locale: pathLocale },
   );
 }
 
 export default async function ExperimentPage({
   params,
 }: {
-  params: Promise<{ experiment: string }>;
+  params: Promise<{ locale: string; experiment: string }>;
 }) {
-  const { experiment } = await params;
+  const { locale: rawLocale, experiment } = await params;
   if (!isExperimentId(experiment)) notFound();
+  const locale = isLocale(rawLocale) ? rawLocale : "es-co";
 
   const definition = EXPERIMENTS[experiment];
   const requestHeaders = await headers();
@@ -46,7 +49,7 @@ export default async function ExperimentPage({
   const variant =
     definition.variants.find((item) => item.id === variantId) ||
     definition.variants[0];
-  const route = `/es-co/e/${experiment}`;
+  const route = `/${locale}/e/${experiment}`;
 
   return (
     <main id="main-content" className="experiment-page">

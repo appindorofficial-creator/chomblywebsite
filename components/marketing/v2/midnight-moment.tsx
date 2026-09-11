@@ -1,9 +1,21 @@
+"use client";
+
 import { ArrowRight } from "lucide-react";
 import { TrackedLink } from "@/components/tracked-link";
 import { SectionBeacon } from "@/components/marketing/v2/section-beacon";
-import { MARKETING_V2 } from "@/config/marketing-content-v2";
+import { useLocale, useMarketing } from "@/components/marketing/locale-context";
+import { localizePath, t } from "@/lib/locale";
 
 export function MidnightMoment() {
+  const locale = useLocale();
+  const copy = useMarketing();
+  const path = [
+    t(locale, "Pregunta", "Ask"),
+    t(locale, "Orientación", "Guidance"),
+    t(locale, "Próximo paso", "Next step"),
+    t(locale, "Ayuda", "Help"),
+  ];
+
   return (
     <section className="v2-midnight" data-header-theme="on-dark" aria-labelledby="midnight-title">
       <SectionBeacon sectionId="midnight_moment" />
@@ -13,20 +25,47 @@ export function MidnightMoment() {
       <div className="v2-shell v2-midnight-content">
         <time>11:47 p. m.</time>
         <div className="v2-midnight-beats">
-          <h2 id="midnight-title">Algo no te cuadra.</h2>
-          <p>Tu mascota no está como siempre. Buscas. Preguntas. Comparas. Y lo único que quieres es saber qué hacer.</p>
-          <strong>No necesitas adivinar.</strong>
-          <p>Empieza por orientarte, organiza lo importante y encuentra ayuda profesional cuando haga falta.</p>
+          <h2 id="midnight-title">
+            {t(locale, "Algo no te cuadra.", "Something feels off.")}
+          </h2>
+          <p>
+            {t(
+              locale,
+              "Tu mascota no está como siempre. Buscas. Preguntas. Comparas. Y lo único que quieres es saber qué hacer.",
+              "Your pet is not themselves. You search. You ask. You compare. All you want is to know what to do.",
+            )}
+          </p>
+          <strong>{t(locale, "No necesitas adivinar.", "You do not need to guess.")}</strong>
+          <p>
+            {t(
+              locale,
+              "Empieza por orientarte, organiza lo importante y encuentra ayuda profesional cuando haga falta.",
+              "Start with guidance, organize what matters, and find professional help when you need it.",
+            )}
+          </p>
         </div>
-        <ol className="v2-midnight-path" aria-label="Camino desde una pregunta hasta encontrar ayuda">
-          {['Pregunta', 'Orientación', 'Próximo paso', 'Ayuda'].map((item, index) => <li key={item}><span>{index + 1}</span>{item}</li>)}
+        <ol
+          className="v2-midnight-path"
+          aria-label={t(
+            locale,
+            "Camino desde una pregunta hasta encontrar ayuda",
+            "Path from a question to finding help",
+          )}
+        >
+          {path.map((item, index) => (
+            <li key={item}>
+              <span>{index + 1}</span>
+              {item}
+            </li>
+          ))}
         </ol>
         <TrackedLink
           className="v2-button v2-button-lime"
-          href="/es-co/join?audience=owner&source=midnight"
+          href={localizePath(locale, "/join", "audience=owner&source=midnight")}
           eventProperties={{ cta_id: "midnight_owner_interest", placement: "midnight", audience: "owner" }}
         >
-          {MARKETING_V2.ctas.ownerMoment}<ArrowRight aria-hidden="true" size={18} />
+          {copy.ctas.ownerMoment}
+          <ArrowRight aria-hidden="true" size={18} />
         </TrackedLink>
       </div>
     </section>

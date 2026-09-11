@@ -1,25 +1,46 @@
 import { Mail } from "lucide-react";
 import { SITE } from "@/config/site";
 import { metadataFor } from "@/lib/seo";
+import { isLocale, localizePath, t } from "@/lib/locale";
+import { notFound } from "next/navigation";
 
-export const metadata = metadataFor(
-  "Contacto",
-  "Ponte en contacto con el equipo de Chombly.",
-  "/es-co/contact",
-);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) return {};
+  return metadataFor(
+    t(raw, "Contacto", "Contact"),
+    t(raw, "Ponte en contacto con el equipo de Chombly.", "Get in touch with the Chombly team."),
+    localizePath(raw, "/contact"),
+    { locale: raw },
+  );
+}
 
-export default function ContactPage() {
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) notFound();
   return (
     <main id="main-content" className="contact-page">
       <div className="container contact-grid">
         <div>
-          <p className="eyebrow">Contacto</p>
-          <h1>¿Tienes algo en mente? Conversemos.</h1>
-          <p>Para acceso temprano, presencia profesional o una colaboración, elige tu camino en Chombly. Para asuntos operativos, escríbenos.</p>
+          <p className="eyebrow">{t(raw, "Contacto", "Contact")}</p>
+          <h1>
+            {t(raw, "¿Tienes algo en mente? Conversemos.", "Have something in mind? Let's talk.")}
+          </h1>
+          <p>
+            {t(
+              raw,
+              "Para acceso temprano, presencia profesional o una colaboración, elige tu camino en Chombly. Para asuntos operativos, escríbenos.",
+              "For early access, professional presence, or a collaboration, choose your path on Chombly. For operational matters, email us.",
+            )}
+          </p>
         </div>
         <a className="contact-email" href={`mailto:${SITE.operationalEmail}`}>
           <Mail aria-hidden="true" />
-          <span>Correo operativo</span>
+          <span>{t(raw, "Correo operativo", "Operations email")}</span>
           <strong>{SITE.operationalEmail}</strong>
         </a>
       </div>

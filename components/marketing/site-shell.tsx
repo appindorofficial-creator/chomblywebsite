@@ -1,15 +1,25 @@
 import { BrandHeader } from "@/components/marketing/v2/brand-header";
 import { BrandFooter } from "@/components/marketing/v2/brand-footer";
 import { RouteTransitionProvider } from "@/components/marketing/v2/route-transition-provider";
+import { LocaleProvider } from "@/components/marketing/locale-context";
+import type { LocaleCode } from "@/config/site";
 
-export function SiteShell({ children }: { children: React.ReactNode }) {
+export function SiteShell({
+  locale,
+  children,
+}: {
+  locale: LocaleCode;
+  children: React.ReactNode;
+}) {
   return (
-    <RouteTransitionProvider>
-      <div className="v2-site-frame">
-        <BrandHeader />
-        {children}
-        <BrandFooter />
-      </div>
-    </RouteTransitionProvider>
+    <LocaleProvider locale={locale}>
+      <RouteTransitionProvider>
+        <div className="v2-site-frame" lang={locale === "en-us" ? "en-US" : "es-CO"}>
+          <BrandHeader />
+          {children}
+          <BrandFooter />
+        </div>
+      </RouteTransitionProvider>
+    </LocaleProvider>
   );
 }

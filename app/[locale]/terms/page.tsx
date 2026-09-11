@@ -1,11 +1,17 @@
 import { SITE } from "@/config/site";
 import { metadataFor } from "@/lib/seo";
+import { isLocale, localizePath, t } from "@/lib/locale";
 
-export const metadata = metadataFor(
-  "Términos",
-  "Condiciones para usar la experiencia pública de Chombly.",
-  "/es-co/terms",
-);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) return {};
+  return metadataFor(
+    t(raw, "Términos", "Terms"),
+    t(raw, "Condiciones para usar la experiencia pública de Chombly.", "Terms for using Chombly's public experience."),
+    localizePath(raw, "/terms"),
+    { locale: raw },
+  );
+}
 
 export default function TermsPage() {
   return (

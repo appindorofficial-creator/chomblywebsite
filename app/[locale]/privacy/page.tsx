@@ -1,11 +1,17 @@
 import { SITE } from "@/config/site";
 import { metadataFor } from "@/lib/seo";
+import { isLocale, localizePath, t } from "@/lib/locale";
 
-export const metadata = metadataFor(
-  "Privacidad",
-  "Información sobre el tratamiento de datos de Chombly.",
-  "/es-co/privacy",
-);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) return {};
+  return metadataFor(
+    t(raw, "Privacidad", "Privacy"),
+    t(raw, "Información sobre el tratamiento de datos de Chombly.", "Information about how Chombly handles data."),
+    localizePath(raw, "/privacy"),
+    { locale: raw },
+  );
+}
 
 export default function PrivacyPage() {
   return (

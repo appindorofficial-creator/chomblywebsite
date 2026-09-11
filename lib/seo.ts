@@ -1,31 +1,48 @@
 import type { Metadata } from "next";
-import { PUBLIC_ROUTES, SITE, SITE_MODE, absoluteUrl } from "@/config/site";
+import { PUBLIC_ROUTES, SITE, SITE_MODE, absoluteUrl, type LocaleCode } from "@/config/site";
+import { htmlLang, openGraphLocale, stripLocale, localizePath } from "@/lib/locale";
 
-export const BRAND_DESCRIPTION =
-  "Chombly está construyendo una forma más clara de conectar el contexto y el cuidado de las mascotas.";
+export const BRAND_DESCRIPTION = {
+  "es-co":
+    "Chombly está construyendo una forma más clara de conectar el contexto y el cuidado de las mascotas.",
+  "en-us":
+    "Chombly is building a clearer way to connect pet context and care.",
+} as const;
 
 export function metadataFor(
   title: string,
   description: string,
   path: string,
-  options: { noindex?: boolean } | "es" | "en" = {},
+  options: { noindex?: boolean; locale?: LocaleCode } | "es" | "en" = {},
 ): Metadata {
-  const shouldIndex =
-    SITE.indexingEnabled &&
-    !(typeof options === "object" && options.noindex);
+  const normalized =
+    options === "en"
+      ? { locale: "en-us" as const }
+      : options === "es"
+        ? { locale: "es-co" as const }
+        : options;
+  const locale = normalized.locale ?? "es-co";
+  const shouldIndex = SITE.indexingEnabled && !normalized.noindex;
   const url = absoluteUrl(path);
+  const bare = stripLocale(path);
+  const esPath = localizePath("es-co", bare);
+  const enPath = localizePath("en-us", bare);
 
   return {
     title,
     description,
     alternates: {
       canonical: url,
-      languages: { "es-CO": url, "x-default": url },
+      languages: {
+        "es-CO": absoluteUrl(esPath),
+        "en-US": absoluteUrl(enPath),
+        "x-default": absoluteUrl(esPath),
+      },
     },
     robots: { index: shouldIndex, follow: shouldIndex },
     openGraph: {
       type: "website",
-      locale: "es_CO",
+      locale: openGraphLocale(locale),
       siteName: SITE.brandName,
       title,
       description,
@@ -35,8 +52,6 @@ export function metadataFor(
   };
 }
 
-// Compatibility surface for the gated legacy product renderer. It is never
-// used by the new public routes and intentionally makes no availability claims.
 export function pageGraph(
   path: string,
   title: string,
@@ -62,7 +77,8 @@ export function pageGraph(
   };
 }
 
-export function organizationGraph() {
+export function organizationGraph(locale: LocaleCode = "es-co") {
+  const home = localizePath(locale);
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -70,17 +86,17 @@ export function organizationGraph() {
         "@type": "Organization",
         "@id": `${SITE.baseUrl}/#organization`,
         name: SITE.brandName,
-        url: absoluteUrl("/es-co"),
-        description: BRAND_DESCRIPTION,
+        url: absoluteUrl(home),
+        description: BRAND_DESCRIPTION[locale],
         email: SITE.operationalEmail,
       },
       {
         "@type": "WebSite",
         "@id": `${SITE.baseUrl}/#website`,
-        url: absoluteUrl("/es-co"),
+        url: absoluteUrl(home),
         name: SITE.brandName,
-        inLanguage: "es-CO",
-        description: BRAND_DESCRIPTION,
+        inLanguage: htmlLang(locale),
+        description: BRAND_DESCRIPTION[locale],
         publisher: { "@id": `${SITE.baseUrl}/#organization` },
       },
     ],

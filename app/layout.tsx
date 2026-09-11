@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     default: "Chombly | Tu mascota cuenta contigo",
     template: "%s | Chombly",
   },
-  description: BRAND_DESCRIPTION,
+  description: BRAND_DESCRIPTION["es-co"],
   robots: { index: SITE.indexingEnabled, follow: SITE.indexingEnabled },
   icons: { icon: "/brand/chombly-mark.png" },
 };

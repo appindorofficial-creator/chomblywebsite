@@ -13,7 +13,7 @@ export const SITE = {
   market: "Colombia",
   marketCode: "CO",
   currentLocale: "es-co" as const,
-  supportedLocales: ["es-co"] as const,
+  supportedLocales: ["es-co", "en-us"] as const,
   preparedLocales: ["es-co", "en-us"] as const,
   baseUrl:
     process.env.NEXT_PUBLIC_CHOMBLY_BASE_URL?.replace(/\/$/, "") ||
@@ -64,30 +64,43 @@ export function paymentsEnabled(): boolean {
 }
 
 export const STAGE_LABEL = {
-  PRELAUNCH: "En construcción y validación",
-  PILOT: "Piloto controlado",
-  LIVE: "Disponible",
-} satisfies Record<SiteMode, string>;
+  PRELAUNCH: {
+    "es-co": "En construcción y validación",
+    "en-us": "Under construction and validation",
+  },
+  PILOT: {
+    "es-co": "Piloto controlado",
+    "en-us": "Controlled pilot",
+  },
+  LIVE: {
+    "es-co": "Disponible",
+    "en-us": "Available",
+  },
+} satisfies Record<SiteMode, Record<LocaleCode, string>>;
 
-export const PUBLIC_ROUTES = [
-  "/es-co",
-  "/es-co/pet-owners",
-  "/es-co/professionals",
-  "/es-co/clinics",
-  "/es-co/businesses",
-  "/es-co/partners",
-  "/es-co/about",
-  "/es-co/join",
-  "/es-co/contact",
-  "/es-co/privacy",
-  "/es-co/terms",
+const ROUTE_SUFFIXES = [
+  "",
+  "/pet-owners",
+  "/professionals",
+  "/clinics",
+  "/businesses",
+  "/partners",
+  "/about",
+  "/join",
+  "/contact",
+  "/privacy",
+  "/terms",
 ] as const;
 
-export const EXPERIMENT_ROUTES = [
-  "/es-co/e/continuity",
-  "/es-co/e/care-navigator",
-  "/es-co/e/pet-passport",
-] as const;
+export const PUBLIC_ROUTES = SITE.supportedLocales.flatMap((locale) =>
+  ROUTE_SUFFIXES.map((suffix) => `/${locale}${suffix}`),
+);
+
+export const EXPERIMENT_ROUTES = SITE.supportedLocales.flatMap((locale) =>
+  ["continuity", "care-navigator", "pet-passport"].map(
+    (id) => `/${locale}/e/${id}`,
+  ),
+);
 
 export function absoluteUrl(path = "/es-co"): string {
   return new URL(path, `${SITE.baseUrl}/`).href;
