@@ -1,22 +1,30 @@
 import { AudiencePage } from "@/components/marketing/audience-page";
-import { metadataFor } from "@/lib/seo";
-import { isLocale, localizePath, t } from "@/lib/locale";
+import { JsonLd } from "@/components/seo/json-ld";
+import { marketingPageGraph, metadataForSeoPage } from "@/lib/seo";
+import { isLocale } from "@/lib/locale";
+import { notFound } from "next/navigation";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) return {};
-  return metadataFor(
-    t(raw, "Para aliados", "For partners"),
-    t(
-      raw,
-      "Fundaciones, comunidades y aliados que amplían acceso al cuidado.",
-      "Foundations, communities, and partners expanding access to care.",
-    ),
-    localizePath(raw, "/partners"),
-    { locale: raw },
-  );
+  return metadataForSeoPage(raw, "partners");
 }
 
-export default function PartnersPage() {
-  return <AudiencePage kind="partners" />;
+export default async function PartnersPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) notFound();
+  return (
+    <>
+      <AudiencePage kind="partners" />
+      <JsonLd data={marketingPageGraph(raw, "partners")} />
+    </>
+  );
 }

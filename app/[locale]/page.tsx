@@ -1,6 +1,11 @@
 import { HomePage } from "@/components/marketing/home-page";
-import { jsonLd, metadataFor, organizationGraph } from "@/lib/seo";
-import { isLocale, localizePath, t } from "@/lib/locale";
+import { JsonLd } from "@/components/seo/json-ld";
+import {
+  metadataForSeoPage,
+  marketingPageGraph,
+  organizationGraph,
+} from "@/lib/seo";
+import { isLocale } from "@/lib/locale";
 import { notFound } from "next/navigation";
 
 export async function generateMetadata({
@@ -10,16 +15,7 @@ export async function generateMetadata({
 }) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) return {};
-  return metadataFor(
-    t(raw, "Tu mascota cuenta contigo", "Your pet counts on you"),
-    t(
-      raw,
-      "Una app para resolver dudas, encontrar profesionales, clínicas y servicios pet, y llevar contigo lo importante de su cuidado.",
-      "An app to answer questions, find professionals, clinics, and pet services, and carry what matters about their care with you.",
-    ),
-    localizePath(raw),
-    { locale: raw },
-  );
+  return metadataForSeoPage(raw, "home");
 }
 
 export default async function LocaleHomePage({
@@ -32,12 +28,8 @@ export default async function LocaleHomePage({
   return (
     <>
       <HomePage />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLd(organizationGraph(raw)),
-        }}
-      />
+      <JsonLd data={organizationGraph(raw)} />
+      <JsonLd data={marketingPageGraph(raw, "home")} />
     </>
   );
 }

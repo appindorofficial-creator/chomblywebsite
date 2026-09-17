@@ -1,18 +1,25 @@
 import { SITE, absoluteUrl } from "@/config/site";
 
 export function GET() {
+  const sitemap = `Sitemap: ${absoluteUrl("/sitemap.xml")}`;
   const lines = SITE.indexingEnabled
     ? [
         "User-agent: *",
         "Allow: /",
         "",
-        `Sitemap: ${absoluteUrl("/sitemap.xml")}`,
+        "User-agent: OAI-SearchBot",
+        "Allow: /",
+        "",
+        "User-agent: GPTBot",
+        "Disallow: /",
+        "",
+        sitemap,
       ]
     : [
         "User-agent: *",
         "Disallow: /",
         "",
-        `Sitemap: ${absoluteUrl("/sitemap.xml")}`,
+        sitemap,
       ];
 
   return new Response(`${lines.join("\n")}\n`, {

@@ -1,6 +1,8 @@
 import { AudiencePage } from "@/components/marketing/audience-page";
-import { metadataFor } from "@/lib/seo";
-import { isLocale, localizePath, t } from "@/lib/locale";
+import { JsonLd } from "@/components/seo/json-ld";
+import { marketingPageGraph, metadataForSeoPage } from "@/lib/seo";
+import { isLocale } from "@/lib/locale";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({
   params,
@@ -9,18 +11,20 @@ export async function generateMetadata({
 }) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) return {};
-  return metadataFor(
-    t(raw, "Para familias con mascotas", "For pet families"),
-    t(
-      raw,
-      "Orientación, ayuda profesional y herramientas de cuidado para acompañarte con tu mascota.",
-      "Guidance, professional help, and care tools to support you with your pet.",
-    ),
-    localizePath(raw, "/pet-owners"),
-    { locale: raw },
-  );
+  return metadataForSeoPage(raw, "pet-owners");
 }
 
-export default function PetOwnersPage() {
-  return <AudiencePage kind="families" />;
+export default async function PetOwnersPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) notFound();
+  return (
+    <>
+      <AudiencePage kind="families" />
+      <JsonLd data={marketingPageGraph(raw, "pet-owners")} />
+    </>
+  );
 }

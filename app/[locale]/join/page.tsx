@@ -1,7 +1,7 @@
 import type { AudienceId } from "@/config/audiences";
 import { AudienceForm } from "@/components/forms/audience-form";
-import { metadataFor } from "@/lib/seo";
-import { isLocale, localizePath, t } from "@/lib/locale";
+import { metadataForSeoPage } from "@/lib/seo";
+import { isLocale, t } from "@/lib/locale";
 import { notFound } from "next/navigation";
 
 export async function generateMetadata({
@@ -11,16 +11,7 @@ export async function generateMetadata({
 }) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) return {};
-  return metadataFor(
-    t(raw, "Quiero Chombly", "I want Chombly"),
-    t(
-      raw,
-      "Cuéntanos cómo te gustaría formar parte de Chombly.",
-      "Tell us how you would like to be part of Chombly.",
-    ),
-    localizePath(raw, "/join"),
-    { locale: raw },
-  );
+  return metadataForSeoPage(raw, "join");
 }
 
 const audiences = new Set<AudienceId>(["owner", "professional", "clinic", "partner"]);

@@ -1,20 +1,30 @@
-import { metadataFor } from "@/lib/seo";
-import { isLocale, localizePath, t } from "@/lib/locale";
+import { JsonLd } from "@/components/seo/json-ld";
+import { marketingPageGraph, metadataForSeoPage } from "@/lib/seo";
+import { isLocale } from "@/lib/locale";
 import AboutPage from "./about-client";
+import { notFound } from "next/navigation";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) return {};
-  return metadataFor(
-    t(raw, "Sobre Chombly", "About Chombly"),
-    t(
-      raw,
-      "La idea, visión y ecosistema que inspiran una forma más clara de cuidar.",
-      "The idea, vision, and ecosystem behind a clearer way to care.",
-    ),
-    localizePath(raw, "/about"),
-    { locale: raw },
-  );
+  return metadataForSeoPage(raw, "about");
 }
 
-export default AboutPage;
+export default async function AboutRoute({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) notFound();
+  return (
+    <>
+      <AboutPage />
+      <JsonLd data={marketingPageGraph(raw, "about")} />
+    </>
+  );
+}
