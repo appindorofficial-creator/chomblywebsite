@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { AudienceForm } from "@/components/forms/audience-form";
 import { EventBeacon } from "@/components/analytics-beacon";
-import { EXPERIMENTS, type ExperimentId } from "@/config/experiments";
+import {
+  EXPERIMENTS,
+  experimentsFor,
+  type ExperimentId,
+} from "@/config/experiments";
 import { assignVariant, safeAnonymousId } from "@/lib/experiments/assign";
 import { metadataFor } from "@/lib/seo";
 import { isLocale } from "@/lib/locale";
@@ -19,8 +23,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, experiment } = await params;
   if (!isExperimentId(experiment)) return {};
-  const definition = EXPERIMENTS[experiment];
   const pathLocale = isLocale(locale) ? locale : "es-co";
+  const definition = experimentsFor(pathLocale)[experiment];
   return metadataFor(
     definition.title,
     definition.variants[0].body,
@@ -38,7 +42,7 @@ export default async function ExperimentPage({
   if (!isExperimentId(experiment)) notFound();
   const locale = isLocale(rawLocale) ? rawLocale : "es-co";
 
-  const definition = EXPERIMENTS[experiment];
+  const definition = experimentsFor(locale)[experiment];
   const requestHeaders = await headers();
   const cookieStore = await cookies();
   const anonymousId = safeAnonymousId(
@@ -67,23 +71,21 @@ export default async function ExperimentPage({
       <div className="container experiment-grid">
         <div className="experiment-copy">
           <p className="eyebrow">
-            Hipótesis {definition.priority} · {definition.title}
+            {definition.hypothesisLabel} {definition.priority} · {definition.title}
           </p>
           <h1>{variant.headline}</h1>
           <p>{variant.body}</p>
           <div className="experiment-disclosure">
-            <strong>Esto es una prueba de concepto.</strong>
-            <span>
-              No es un producto clínico, un diagnóstico ni una capacidad disponible.
-            </span>
+            <strong>{definition.disclosureTitle}</strong>
+            <span>{definition.disclosureBody}</span>
           </div>
           <dl className="experiment-context">
             <div>
-              <dt>Señal calificada</dt>
+              <dt>{definition.signalLabel}</dt>
               <dd>{definition.qualifiedSignal}</dd>
             </div>
             <div>
-              <dt>Siguiente paso</dt>
+              <dt>{definition.nextLabel}</dt>
               <dd>{definition.downstream}</dd>
             </div>
           </dl>
@@ -103,4 +105,3 @@ export default async function ExperimentPage({
     </main>
   );
 }
-

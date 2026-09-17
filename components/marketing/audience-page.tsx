@@ -3,7 +3,9 @@
 import { ArrowUpRight, Check, ShieldCheck } from "lucide-react";
 import type { AudienceId } from "@/config/audiences";
 import { TrackedLink } from "@/components/tracked-link";
+import { FaqSection } from "@/components/marketing/v2/faq-section";
 import { useLocale } from "@/components/marketing/locale-context";
+import { seoPages } from "@/config/seo-pages";
 import { localizePath, t } from "@/lib/locale";
 import type { LocaleCode } from "@/config/site";
 
@@ -365,6 +367,16 @@ function contentFor(kind: AudiencePageKind, locale: LocaleCode): PageContent {
 export function AudiencePage({ kind }: { kind: AudiencePageKind }) {
   const locale = useLocale();
   const content = contentFor(kind, locale);
+  const seoKey = (
+    {
+      families: "pet-owners",
+      professionals: "professionals",
+      clinics: "clinics",
+      businesses: "businesses",
+      partners: "partners",
+    } as const
+  )[kind];
+  const faqs = seoPages(locale)[seoKey].faqs ?? [];
   return (
     <main id="main-content" className={`v2-audience-page ${content.tone}`}>
       <section className="v2-audience-hero">
@@ -413,6 +425,15 @@ export function AudiencePage({ kind }: { kind: AudiencePageKind }) {
           </ol>
         </div>
       </section>
+      <FaqSection
+        eyebrow={t(locale, "Preguntas frecuentes", "Frequently asked questions")}
+        title={t(
+          locale,
+          "Respuestas claras antes de continuar.",
+          "Clear answers before you continue.",
+        )}
+        faqs={faqs}
+      />
       <section className="v2-audience-boundary" data-header-theme="on-dark">
         <div className="v2-shell v2-audience-boundary-grid">
           <ShieldCheck aria-hidden="true" />

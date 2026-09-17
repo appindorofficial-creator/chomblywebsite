@@ -23,10 +23,10 @@ export const BRAND_DESCRIPTION = {
 } as const;
 
 export const DEFAULT_OG_IMAGE = {
-  url: "/brand/v2/chombly-wordmark-dark.png",
-  width: 1200,
-  height: 630,
-  alt: "Chombly",
+  url: "/brand/og-default.jpg",
+  width: 1280,
+  height: 720,
+  alt: "Chombly — cuidado de mascotas en Colombia",
 } as const;
 
 export function metadataFor(

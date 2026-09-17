@@ -18,7 +18,7 @@ Publicar este sitio (Next.js / Vinext standalone) en el App Service `chomblywebs
 |---|---|
 | `NEXT_PUBLIC_CHOMBLY_SITE_MODE` | `PRELAUNCH` |
 | `NEXT_PUBLIC_CHOMBLY_INDEXING_ENABLED` | `false` |
-| `NEXT_PUBLIC_CHOMBLY_BASE_URL` | `https://chomblywebsite.azurewebsites.net` (o tu dominio) |
+| `NEXT_PUBLIC_CHOMBLY_BASE_URL` | URL pública real, p. ej. `https://chomblywebsite-aga4dshkgcdhctdp.westus3-01.azurewebsites.net` (o `https://www.chombly.com` cuando exista). Define canonicals, sitemap y OG. |
 | `CHOMBLY_LEGACY_PRODUCT_ENABLED` | `false` |
 | `CHOMBLY_PAYMENTS_ENABLED` | `false` |
 | `CHOMBLY_CRM_ADAPTER` | `local` |
@@ -59,3 +59,4 @@ HOST=0.0.0.0 PORT=8080 npm run start:azure
 
 - No es el pipeline `dotnet publish` de `chombly`; es el mismo Azure App Service con Node.
 - Las animaciones y la UI Next se conservan.
+- SEO: con `INDEXING_ENABLED=false` el sitio sigue en `noindex` + `Disallow: /`, pero `/sitemap.xml` ya lista las rutas públicas ES/EN. Al pasar a LIVE, activa indexing, confirma `BASE_URL` y envía el sitemap en Search Console.
