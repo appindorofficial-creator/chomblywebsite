@@ -1,7 +1,24 @@
-import { SITE } from "@/config/site";
-export function GET(){
- const body=SITE.indexingEnabled
-   ? ["User-agent: *","Allow: /","",`Sitemap: ${SITE.baseUrl}/sitemap.xml`].join("\n")+"\n"
-   : ["User-agent: *","Disallow: /"].join("\n")+"\n";
- return new Response(body,{headers:{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"public, max-age=300"}});
+import { SITE, absoluteUrl } from "@/config/site";
+
+export function GET() {
+  const lines = SITE.indexingEnabled
+    ? [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        `Sitemap: ${absoluteUrl("/sitemap.xml")}`,
+      ]
+    : [
+        "User-agent: *",
+        "Disallow: /",
+        "",
+        `Sitemap: ${absoluteUrl("/sitemap.xml")}`,
+      ];
+
+  return new Response(`${lines.join("\n")}\n`, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "public, max-age=300",
+    },
+  });
 }

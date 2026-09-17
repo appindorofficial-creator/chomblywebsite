@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { PUBLIC_ROUTES, SITE, SITE_MODE, absoluteUrl, type LocaleCode } from "@/config/site";
+import {
+  PUBLIC_ROUTES,
+  SITE,
+  SITE_MODE,
+  SITEMAP_ROUTES,
+  absoluteUrl,
+  type LocaleCode,
+} from "@/config/site";
 import { htmlLang, openGraphLocale, stripLocale, localizePath } from "@/lib/locale";
 
 export const BRAND_DESCRIPTION = {
@@ -107,12 +114,59 @@ export function jsonLd(value: unknown): string {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
+export type SitemapEntry = {
+  path: string;
+  loc: string;
+  alternates: { lang: string; href: string }[];
+};
+
+/** Always lists public marketing routes so Search Console can ingest them. */
 export function sitemapPaths(): readonly string[] {
-  return SITE.indexingEnabled ? PUBLIC_ROUTES : [];
+  return SITEMAP_ROUTES;
+}
+
+export function sitemapEntries(): readonly SitemapEntry[] {
+  return SITEMAP_ROUTES.map((path) => {
+    const bare = stripLocale(path);
+    const esPath = localizePath("es-co", bare);
+    const enPath = localizePath("en-us", bare);
+    return {
+      path,
+      loc: absoluteUrl(path),
+      alternates: [
+        { lang: "es-CO", href: absoluteUrl(esPath) },
+        { lang: "en-US", href: absoluteUrl(enPath) },
+        { lang: "x-default", href: absoluteUrl(esPath) },
+      ],
+    };
+  });
+}
+
+export function buildSitemapXml(): string {
+  const urls = sitemapEntries()
+    .map((entry) => {
+      const links = entry.alternates
+        .map(
+          (alt) =>
+            `<xhtml:link rel="alternate" hreflang="${alt.lang}" href="${alt.href}"/>`,
+        )
+        .join("");
+      return `<url><loc>${entry.loc}</loc>${links}</url>`;
+    })
+    .join("");
+
+  return (
+    '<?xml version="1.0" encoding="UTF-8"?>' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">' +
+    urls +
+    "</urlset>"
+  );
 }
 
 export const SEO_STATE = {
   siteMode: SITE_MODE,
   indexingEnabled: SITE.indexingEnabled,
   canonicalConfigured: !SITE.baseUrl.endsWith(".invalid"),
+  publicRouteCount: PUBLIC_ROUTES.length,
+  sitemapRouteCount: SITEMAP_ROUTES.length,
 } as const;

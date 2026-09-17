@@ -92,8 +92,26 @@ const ROUTE_SUFFIXES = [
   "/terms",
 ] as const;
 
+/** Public marketing URLs for the sitemap (forms/experiments excluded). */
+const SITEMAP_SUFFIXES = [
+  "",
+  "/pet-owners",
+  "/professionals",
+  "/clinics",
+  "/businesses",
+  "/partners",
+  "/about",
+  "/contact",
+  "/privacy",
+  "/terms",
+] as const;
+
 export const PUBLIC_ROUTES = SITE.supportedLocales.flatMap((locale) =>
   ROUTE_SUFFIXES.map((suffix) => `/${locale}${suffix}`),
+);
+
+export const SITEMAP_ROUTES = SITE.supportedLocales.flatMap((locale) =>
+  SITEMAP_SUFFIXES.map((suffix) => `/${locale}${suffix}`),
 );
 
 export const EXPERIMENT_ROUTES = SITE.supportedLocales.flatMap((locale) =>
