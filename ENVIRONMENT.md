@@ -15,7 +15,7 @@
 | `CHOMBLY_EMAIL_ADAPTER` | No | No | `local` | `local` o `resend` |
 | `CHOMBLY_RESEND_API_KEY` | No | Sí | vacío | API key Resend |
 | `CHOMBLY_EMAIL_FROM` | No | No | vacío | Remitente verificado |
-| `CHOMBLY_LEADS_ALERT_EMAIL` | No | No | contacto operativo | Alerta interna de leads |
+| `CHOMBLY_LEADS_ALERT_EMAIL` | No | No | `Chomblypet@gmail.com` | Alerta interna de leads |
 | `CHOMBLY_LEADS_ADMIN_TOKEN` | No | Sí | vacío | Inbox `/leads` y export CSV |
 | `CHOMBLY_LEGACY_PRODUCT_ENABLED` | No | No | `false` | Booking/cuenta/profesionales; requiere PILOT/LIVE |
 | `CHOMBLY_PAYMENTS_ENABLED` | No | No | `false` | Checkout/webhook; requiere LIVE |

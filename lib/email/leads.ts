@@ -156,7 +156,9 @@ export async function notifyLeadEmails(
   }
 
   const alertTo =
-    config.CHOMBLY_LEADS_ALERT_EMAIL?.trim() || SITE.operationalEmail;
+    config.CHOMBLY_LEADS_ALERT_EMAIL?.trim() ||
+    SITE.operationalEmail ||
+    "Chomblypet@gmail.com";
 
   const confirmation = buildConfirmation(lead);
   const alert = buildOpsAlert(lead, alertTo);
