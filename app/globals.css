@@ -1329,6 +1329,17 @@ textarea:focus-visible {
 .join-intro { position: sticky; top: 130px; }
 .join-intro h1 { color: var(--forest); font-size: clamp(3.8rem, 6vw, 6.3rem); margin-block: 22px 27px; }
 .join-intro > p:not(.eyebrow) { font-size: 1rem; line-height: 1.8; }
+.join-app-link { margin-top: 18px; }
+.join-app-link a {
+  align-items: center;
+  color: var(--forest);
+  display: inline-flex;
+  font-size: 0.92rem;
+  font-weight: 700;
+  gap: 6px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .join-notes { border-top: 1px solid var(--line); display: grid; gap: 14px 18px; grid-template-columns: 28px 1fr; margin-top: 45px; padding-top: 24px; }
 .join-notes span { color: var(--forest); font-size: .67rem; font-weight: 760; }
 .join-notes p { font-size: .78rem; line-height: 1.6; }
