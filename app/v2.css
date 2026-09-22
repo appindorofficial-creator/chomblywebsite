@@ -719,21 +719,55 @@ body.v2-menu-open { overflow: hidden; }
 .v2-about-close h2 { color: #fff; font-size: clamp(4rem, 7vw, 7rem); line-height: .9; margin: 30px auto 48px; max-width: 1050px; }
 
 /* Join, contact and policy surfaces */
-.join-page { background: var(--lavender); min-height: 100svh; padding: 146px 0 110px; }
+.join-page {
+  background:
+    radial-gradient(120% 80% at 10% 0%, rgba(255, 253, 248, 0.55), transparent 55%),
+    radial-gradient(90% 70% at 100% 20%, rgba(255, 255, 255, 0.28), transparent 50%),
+    var(--lavender);
+  min-height: 100svh;
+  padding: 146px 0 110px;
+}
 .join-grid { gap: clamp(58px, 8vw, 120px); }
 .join-intro { top: 126px; }
 .join-intro h1 { color: var(--graphite); font-size: clamp(4rem, 6.6vw, 7rem); letter-spacing: -.065em; line-height: .9; }
 .join-intro > p:not(.eyebrow) { color: #353244; font-size: 1.06rem; }
-.join-notes { border-color: rgba(31,42,38,.4); }
+.join-notes { border-color: rgba(31,42,38,.18); }
 .join-notes span { color: var(--graphite); }
 .join-notes p { color: #413e4d; }
-.join-page .audience-form { background: var(--ivory); border: 0; border-radius: 0; box-shadow: 18px 18px 0 var(--graphite); }
-.join-page .audience-selector label { background: transparent; border-color: rgba(31,42,38,.3); }
-.join-page .audience-selector label[data-selected="true"] { background: var(--graphite); border-color: var(--graphite); }
+.join-page .audience-form {
+  background: rgba(255, 253, 248, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 32px;
+  box-shadow:
+    0 1px 2px rgba(31, 42, 38, 0.05),
+    0 18px 40px rgba(31, 42, 38, 0.1),
+    0 48px 80px rgba(70, 52, 140, 0.12);
+}
+.join-page .audience-selector > div { background: rgba(31, 42, 38, 0.07); }
+.join-page .audience-selector label[data-selected="true"] {
+  background: var(--white);
+  color: var(--graphite);
+}
 .join-page .form-field input,
-.join-page .form-field select { background-color: var(--ivory-light); border-color: rgba(31,42,38,.35); }
-.join-page .form-boundary { background: var(--lime-soft); border-color: var(--forest-deep); }
-.join-page .audience-form > .button { background: var(--graphite); border-color: var(--graphite); }
+.join-page .form-field select {
+  background-color: rgba(31, 42, 38, 0.05);
+  border-color: transparent;
+}
+.join-page .form-field input:focus,
+.join-page .form-field select:focus {
+  background-color: #fff;
+  border-color: rgba(31, 42, 38, 0.16);
+  box-shadow: 0 0 0 4px rgba(143, 126, 235, 0.2);
+}
+.join-page .form-boundary {
+  background: rgba(230, 244, 166, 0.55);
+  color: #3f4f47;
+}
+.join-page .audience-form > .button {
+  background: var(--graphite);
+  border-color: var(--graphite);
+  border-radius: 999px;
+}
 .contact-page { background: var(--coral); min-height: 100svh; padding: 154px 0 130px; }
 .contact-grid { align-items: center; }
 .contact-page h1 { color: var(--graphite); font-size: clamp(4.5rem, 8vw, 8.4rem); letter-spacing: -.07em; line-height: .86; }
@@ -910,7 +944,12 @@ body.v2-menu-open { overflow: hidden; }
   .v2-about-manifesto h2,
   .v2-about-vision h2 { font-size: clamp(3.1rem, 12vw, 4.4rem); }
   .v2-about-close h2 { font-size: clamp(3.2rem, 12vw, 4.8rem); }
-  .join-page .audience-form { box-shadow: 10px 10px 0 var(--graphite); }
+  .join-page .audience-form {
+    border-radius: 24px;
+    box-shadow:
+      0 1px 2px rgba(31, 42, 38, 0.05),
+      0 14px 32px rgba(31, 42, 38, 0.1);
+  }
   .contact-page { padding-top: 124px; }
   .contact-email { box-shadow: 10px 10px 0 var(--lavender); }
 }
