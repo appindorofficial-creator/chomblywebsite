@@ -4,7 +4,8 @@ import { ArrowRight } from "lucide-react";
 import { TrackedLink } from "@/components/tracked-link";
 import { SectionBeacon } from "@/components/marketing/v2/section-beacon";
 import { useLocale, useMarketing } from "@/components/marketing/locale-context";
-import { localizePath, t } from "@/lib/locale";
+import { SITE } from "@/config/site";
+import { t } from "@/lib/locale";
 
 export function MidnightMoment() {
   const locale = useLocale();
@@ -61,8 +62,14 @@ export function MidnightMoment() {
         </ol>
         <TrackedLink
           className="v2-button v2-button-lime"
-          href={localizePath(locale, "/join", "audience=owner&source=midnight")}
-          eventProperties={{ cta_id: "midnight_owner_interest", placement: "midnight", audience: "owner" }}
+          href={SITE.appWelcomeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          eventProperties={{
+            cta_id: "midnight_open_app",
+            placement: "midnight",
+            audience: "owner",
+          }}
         >
           {copy.ctas.ownerMoment}
           <ArrowRight aria-hidden="true" size={18} />

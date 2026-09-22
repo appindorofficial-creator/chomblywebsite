@@ -1,7 +1,7 @@
 import type { AudienceId } from "@/config/audiences";
 import { AudienceForm } from "@/components/forms/audience-form";
 import { metadataForSeoPage } from "@/lib/seo";
-import { isLocale, t } from "@/lib/locale";
+import { isLocale, localizePath, t } from "@/lib/locale";
 import { notFound } from "next/navigation";
 
 export async function generateMetadata({

@@ -18,6 +18,10 @@ export const SITE = {
   baseUrl:
     process.env.NEXT_PUBLIC_CHOMBLY_BASE_URL?.replace(/\/$/, "") ||
     "https://chombly.invalid",
+  /** Product welcome / app entry (not this marketing site). */
+  appWelcomeUrl:
+    process.env.NEXT_PUBLIC_CHOMBLY_APP_WELCOME_URL?.replace(/\/$/, "") ||
+    "https://chombly-dqdzd0h4escvhyfe.westus3-01.azurewebsites.net/Welcome",
   operationalEmail:
     process.env.NEXT_PUBLIC_CHOMBLY_CONTACT_EMAIL || "Chomblypet@gmail.com",
   associatedOrganization:

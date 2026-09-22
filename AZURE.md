@@ -19,6 +19,7 @@ Publicar este sitio (Next.js / Vinext standalone) en el App Service `chomblywebs
 | `NEXT_PUBLIC_CHOMBLY_SITE_MODE` | `PRELAUNCH` |
 | `NEXT_PUBLIC_CHOMBLY_INDEXING_ENABLED` | `false` |
 | `NEXT_PUBLIC_CHOMBLY_BASE_URL` | URL pública real, p. ej. `https://chomblywebsite-aga4dshkgcdhctdp.westus3-01.azurewebsites.net` (o `https://www.chombly.com` cuando exista). Define canonicals, sitemap y OG. |
+| `NEXT_PUBLIC_CHOMBLY_APP_WELCOME_URL` | App producto, p. ej. `https://chombly-dqdzd0h4escvhyfe.westus3-01.azurewebsites.net/Welcome` |
 | `CHOMBLY_LEGACY_PRODUCT_ENABLED` | `false` |
 | `CHOMBLY_PAYMENTS_ENABLED` | `false` |
 | `CHOMBLY_CRM_ADAPTER` | `local` |
