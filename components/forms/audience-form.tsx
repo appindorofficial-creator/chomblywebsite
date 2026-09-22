@@ -10,7 +10,13 @@ import { SITE, type LocaleCode } from "@/config/site";
 import { TrackedLink } from "@/components/tracked-link";
 import { useLocale } from "@/components/marketing/locale-context";
 import { localizePath, t } from "@/lib/locale";
-import { createLeadSchema, type LeadFormInput, type LeadInput } from "@/lib/leads/schema";
+import {
+  createLeadSchema,
+  defaultMarketForLocale,
+  type LeadFormInput,
+  type LeadInput,
+  type LeadMarket,
+} from "@/lib/leads/schema";
 import { track } from "@/lib/analytics/client";
 import { createIdempotencyKey } from "@/lib/ids";
 
@@ -50,6 +56,7 @@ export function AudienceForm({
 }) {
   const locale = useLocale();
   const schema = useMemo(() => createLeadSchema(locale), [locale]);
+  const defaultMarket = defaultMarketForLocale(locale);
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState("");
@@ -67,7 +74,7 @@ export function AudienceForm({
     defaultValues: {
       idempotencyKey: "00000000-0000-4000-8000-000000000000",
       audience: defaultAudience,
-      market: "Colombia",
+      market: defaultMarket,
       contactPreference: "email",
       source: experiment ? "experiment_landing" : "public_website",
       route,
@@ -108,12 +115,21 @@ export function AudienceForm({
 
   const audience = watch("audience") || defaultAudience;
   const contactPreference = watch("contactPreference") || "email";
+  const market = (watch("market") || defaultMarket) as LeadMarket;
   const audienceField = register("audience");
   const resolvedSubmit =
     submitLabel ||
     (audience === "owner"
       ? t(locale, "Quiero que me avisen", "I want you to reach out")
       : t(locale, "Quiero entrar a Chombly", "I want to join Chombly"));
+  const cityPlaceholder =
+    market === "United States"
+      ? t(locale, "Ej. Miami, Austin", "e.g. Miami, Austin")
+      : t(locale, "Ej. Bogotá, Medellín", "e.g. Bogotá, Medellín");
+  const phonePlaceholder =
+    market === "United States"
+      ? t(locale, "+1 555 123 4567", "+1 555 123 4567")
+      : t(locale, "300 123 4567", "300 123 4567");
 
   function markStarted() {
     if (started.current) return;
@@ -146,7 +162,7 @@ export function AudienceForm({
       ...utmAttribution,
       idempotencyKey,
       audience: compact ? defaultAudience : data.audience,
-      market: "Colombia",
+      market: data.market,
       source: experiment ? "experiment_landing" : "public_website",
       route,
       experimentId: experiment?.experimentId,
@@ -357,8 +373,27 @@ export function AudienceForm({
         <Field label={t(locale, "Nombre", "Name")} error={errors.name?.message}>
           <input autoComplete="name" {...register("name")} />
         </Field>
+        <Field label={t(locale, "País", "Country")} error={errors.market?.message}>
+          <select {...register("market")} autoComplete="country-name">
+            <option value="Colombia">{t(locale, "Colombia", "Colombia")}</option>
+            <option value="United States">{t(locale, "Estados Unidos", "United States")}</option>
+          </select>
+        </Field>
+      </div>
+
+      <div className="form-grid form-grid-two">
         <Field label={t(locale, "Ciudad", "City")} error={errors.city?.message}>
-          <input autoComplete="address-level2" {...register("city")} />
+          <input
+            autoComplete="address-level2"
+            placeholder={cityPlaceholder}
+            {...register("city")}
+          />
+        </Field>
+        <Field
+          label={`${t(locale, "Correo", "Email")}${contactPreference === "email" ? " *" : ""}`}
+          error={errors.email?.message}
+        >
+          <input type="email" autoComplete="email" {...register("email")} />
         </Field>
       </div>
 
@@ -372,30 +407,28 @@ export function AudienceForm({
         </label>
         <label>
           <input type="radio" value="phone" {...register("contactPreference")} />{" "}
-          {t(locale, "WhatsApp", "Phone / text")}
+          {market === "United States"
+            ? t(locale, "Teléfono / SMS", "Phone / text")
+            : t(locale, "WhatsApp", "WhatsApp")}
         </label>
       </fieldset>
 
-      <div className="form-grid form-grid-two">
-        <Field
-          label={`${t(locale, "Correo", "Email")}${contactPreference === "email" ? " *" : ""}`}
-          error={errors.email?.message}
-        >
-          <input type="email" autoComplete="email" {...register("email")} />
-        </Field>
-        <Field
-          label={`${t(locale, "WhatsApp / celular", "Phone / SMS")}${contactPreference === "phone" ? " *" : ""}`}
-          error={errors.phone?.message}
-        >
-          <input
-            type="tel"
-            autoComplete="tel"
-            inputMode="tel"
-            placeholder={t(locale, "300 123 4567", "+1 555 123 4567")}
-            {...register("phone")}
-          />
-        </Field>
-      </div>
+      <Field
+        label={`${
+          market === "United States"
+            ? t(locale, "Teléfono / SMS", "Phone / SMS")
+            : t(locale, "WhatsApp / celular", "WhatsApp / mobile")
+        }${contactPreference === "phone" ? " *" : ""}`}
+        error={errors.phone?.message}
+      >
+        <input
+          type="tel"
+          autoComplete="tel"
+          inputMode="tel"
+          placeholder={phonePlaceholder}
+          {...register("phone")}
+        />
+      </Field>
 
       {audience === "owner" ? <OwnerFields locale={locale} register={register} errors={errors} /> : null}
       {audience === "professional" ? (

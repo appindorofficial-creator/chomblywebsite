@@ -9,6 +9,14 @@ export const audienceValues = [
   "partner",
 ] as const;
 
+/** Launch markets for the public lead form. */
+export const marketValues = ["Colombia", "United States"] as const;
+export type LeadMarket = (typeof marketValues)[number];
+
+export function defaultMarketForLocale(locale: LocaleCode): LeadMarket {
+  return locale === "en-us" ? "United States" : "Colombia";
+}
+
 /** Practical email check: local@domain.tld with a real-looking domain. */
 export function isValidEmail(value: string): boolean {
   const email = value.trim().toLowerCase();
@@ -102,7 +110,7 @@ export function createLeadSchema(locale: LocaleCode = "es-co") {
       phone: optionalPhone(locale),
       contactPreference: z.enum(["email", "phone"]),
       city: z.string().trim().min(2).max(100),
-      market: z.string().trim().min(2).max(80).default("Colombia"),
+      market: z.enum(marketValues),
       ownerTrigger: z
         .enum([
           "new-pet",

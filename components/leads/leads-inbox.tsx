@@ -11,6 +11,7 @@ type LeadRow = {
   email: string | null;
   phone: string | null;
   city: string;
+  market: string;
   role: string | null;
   organization: string | null;
   source: string;
@@ -177,6 +178,7 @@ export function LeadsInbox() {
               <th>{t(locale, "Nombre", "Name")}</th>
               <th>{t(locale, "Contacto", "Contact")}</th>
               <th>{t(locale, "Ciudad", "City")}</th>
+              <th>{t(locale, "País", "Country")}</th>
               <th>{t(locale, "Rol", "Role")}</th>
               <th>CRM</th>
               <th>{t(locale, "Fuente", "Source")}</th>
@@ -190,6 +192,7 @@ export function LeadsInbox() {
                 <td>{lead.name}</td>
                 <td>{lead.email || lead.phone || "—"}</td>
                 <td>{lead.city}</td>
+                <td>{lead.market}</td>
                 <td>{lead.role || lead.organization || "—"}</td>
                 <td>{lead.crm_status}</td>
                 <td>
