@@ -23,6 +23,10 @@ Publicar este sitio (Next.js / Vinext standalone) en el App Service `chomblywebs
 | `NEXT_PUBLIC_CHOMBLY_WHATSAPP` | (Opcional) Solo dígitos internacionales, p. ej. `573001234567` → CTA WhatsApp post-formulario |
 | `NEXT_PUBLIC_POSTHOG_KEY` / `NEXT_PUBLIC_POSTHOG_HOST` | (Opcional) Activa analytics PostHog en el front |
 | `CHOMBLY_LEADS_ADMIN_TOKEN` | Token (≥16 chars) para `/es-co/leads` y `GET /api/leads/admin` |
+| `CHOMBLY_EMAIL_ADAPTER` | `local` (default) o `resend` para confirmación + alerta de leads |
+| `CHOMBLY_RESEND_API_KEY` | API key de Resend (solo server) |
+| `CHOMBLY_EMAIL_FROM` | Remitente verificado, p. ej. `Chombly <hola@tudominio.com>` |
+| `CHOMBLY_LEADS_ALERT_EMAIL` | (Opcional) Destino de alerta interna; por defecto el correo operativo |
 | `CHOMBLY_LEGACY_PRODUCT_ENABLED` | `false` |
 | `CHOMBLY_PAYMENTS_ENABLED` | `false` |
 | `CHOMBLY_CRM_ADAPTER` | `local` |

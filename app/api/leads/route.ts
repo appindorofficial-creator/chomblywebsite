@@ -1,6 +1,7 @@
 import { db, guarded, input, now, respond } from "@/lib/server";
 import { leadSchema, structuredLeadPayload } from "@/lib/leads/schema";
 import { syncLeadToCrm } from "@/lib/crm";
+import { notifyLeadEmails } from "@/lib/email/leads";
 import { createServerId } from "@/lib/ids";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
 
     const leadId = createServerId();
     const structuredAttributes = structuredLeadPayload(data);
+    const role = data.professionalRole || data.clinicRole || null;
     await db()
       .prepare(
         "INSERT INTO leads(id,idempotency_key,audience,name,email,phone,city,market,role,organization,payload,source,route,experiment_id,thesis_id,variant_id,consent_research,consent_updates,status,crm_status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'new','local_only',?) ON CONFLICT(idempotency_key) DO NOTHING",
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
         data.phone || null,
         data.city,
         data.market,
-        data.professionalRole || data.clinicRole || null,
+        role,
         data.organization || null,
         JSON.stringify(structuredAttributes),
         data.source,
@@ -92,6 +94,26 @@ export async function POST(request: Request) {
         .prepare("UPDATE leads SET crm_status=? WHERE id=?")
         .bind(crmStatus, leadId)
         .run();
+    }
+
+    // Best-effort mail; never block acceptance on provider errors.
+    try {
+      await notifyLeadEmails({
+        leadId,
+        audience: data.audience,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        city: data.city,
+        market: data.market,
+        contactPreference: data.contactPreference,
+        organization: data.organization,
+        source: data.source,
+        route: data.route,
+        role,
+      });
+    } catch (error) {
+      console.error("[leads.email]", error);
     }
 
     return respond({ id: leadId, accepted: true }, 201);

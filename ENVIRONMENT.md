@@ -12,6 +12,11 @@
 | `CHOMBLY_CRM_ADAPTER` | No | No | `local` | `local` o `webhook` |
 | `CHOMBLY_CRM_WEBHOOK_URL` | No | Sí | vacío | Endpoint HTTPS del CRM adapter |
 | `CHOMBLY_CRM_WEBHOOK_TOKEN` | No | Sí | vacío | Bearer token CRM |
+| `CHOMBLY_EMAIL_ADAPTER` | No | No | `local` | `local` o `resend` |
+| `CHOMBLY_RESEND_API_KEY` | No | Sí | vacío | API key Resend |
+| `CHOMBLY_EMAIL_FROM` | No | No | vacío | Remitente verificado |
+| `CHOMBLY_LEADS_ALERT_EMAIL` | No | No | contacto operativo | Alerta interna de leads |
+| `CHOMBLY_LEADS_ADMIN_TOKEN` | No | Sí | vacío | Inbox `/leads` y export CSV |
 | `CHOMBLY_LEGACY_PRODUCT_ENABLED` | No | No | `false` | Booking/cuenta/profesionales; requiere PILOT/LIVE |
 | `CHOMBLY_PAYMENTS_ENABLED` | No | No | `false` | Checkout/webhook; requiere LIVE |
 | `CHOMBY_ADMIN_EMAILS` | No | Sí | vacío | Allowlist heredada temporal |
