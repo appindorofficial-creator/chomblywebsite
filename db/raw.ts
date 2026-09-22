@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DatabaseSync } from "node:sqlite";
 
 type SqlValue = string | number | null | bigint;
 
@@ -20,7 +19,30 @@ export type D1Like = {
   ): Promise<Array<{ success: true; meta: { changes: number } }>>;
 };
 
+type WorkerEnv = {
+  DB?: D1Like;
+  [key: string]: unknown;
+};
+
 let nodeDb: D1Like | null = null;
+let workerEnv: WorkerEnv | null | undefined;
+let workerEnvLoad: Promise<void> | null = null;
+
+function loadWorkerEnv(): Promise<void> {
+  if (!workerEnvLoad) {
+    workerEnvLoad = import("cloudflare:workers")
+      .then((mod) => {
+        workerEnv = (mod as { env: WorkerEnv }).env ?? null;
+      })
+      .catch(() => {
+        workerEnv = null;
+      });
+  }
+  return workerEnvLoad;
+}
+
+/** Kick off Workers env resolution at module load (no-op on Azure Node). */
+void loadWorkerEnv();
 
 function resolveSqlitePath(): string {
   return (
@@ -29,53 +51,8 @@ function resolveSqlitePath(): string {
   );
 }
 
-function applyMigrations(sqlite: DatabaseSync) {
-  const directory = path.join(process.cwd(), "drizzle");
-  if (!fs.existsSync(directory)) return;
-
-  sqlite.exec(`
-    CREATE TABLE IF NOT EXISTS __chombly_migrations (
-      id TEXT PRIMARY KEY NOT NULL,
-      applied_at INTEGER NOT NULL
-    );
-  `);
-
-  const applied = new Set(
-    (
-      sqlite.prepare("SELECT id FROM __chombly_migrations").all() as Array<{
-        id: string;
-      }>
-    ).map((row) => row.id),
-  );
-
-  const files = fs
-    .readdirSync(directory)
-    .filter((file) => file.endsWith(".sql"))
-    .sort();
-
-  for (const file of files) {
-    if (applied.has(file)) continue;
-    const sql = fs.readFileSync(path.join(directory, file), "utf8");
-    sqlite.exec("BEGIN");
-    try {
-      for (const statement of sql.split("--> statement-breakpoint")) {
-        const trimmed = statement.trim();
-        if (trimmed) sqlite.exec(trimmed);
-      }
-      sqlite
-        .prepare(
-          "INSERT INTO __chombly_migrations(id, applied_at) VALUES(?, ?)",
-        )
-        .run(file, Math.floor(Date.now() / 1000));
-      sqlite.exec("COMMIT");
-    } catch (error) {
-      sqlite.exec("ROLLBACK");
-      throw error;
-    }
-  }
-}
-
-function createNodeDatabase(filePath: string): D1Like {
+async function createNodeDatabase(filePath: string): Promise<D1Like> {
+  const { DatabaseSync } = await import("node:sqlite");
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   const sqlite = new DatabaseSync(filePath);
   sqlite.exec("PRAGMA foreign_keys = ON;");
@@ -128,27 +105,128 @@ function createNodeDatabase(filePath: string): D1Like {
   };
 }
 
-function getOrCreateNodeDb(): D1Like {
-  if (!nodeDb) {
-    nodeDb = createNodeDatabase(resolveSqlitePath());
+function applyMigrations(sqlite: {
+  exec(sql: string): void;
+  prepare(sql: string): {
+    all: (...params: SqlValue[]) => unknown[];
+    run: (...params: SqlValue[]) => unknown;
+  };
+}) {
+  const directory = path.join(process.cwd(), "drizzle");
+  if (!fs.existsSync(directory)) return;
+
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS __chombly_migrations (
+      id TEXT PRIMARY KEY NOT NULL,
+      applied_at INTEGER NOT NULL
+    );
+  `);
+
+  const applied = new Set(
+    (
+      sqlite.prepare("SELECT id FROM __chombly_migrations").all() as Array<{
+        id: string;
+      }>
+    ).map((row) => row.id),
+  );
+
+  const files = fs
+    .readdirSync(directory)
+    .filter((file) => file.endsWith(".sql"))
+    .sort();
+
+  for (const file of files) {
+    if (applied.has(file)) continue;
+    const sql = fs.readFileSync(path.join(directory, file), "utf8");
+    sqlite.exec("BEGIN");
+    try {
+      for (const statement of sql.split("--> statement-breakpoint")) {
+        const trimmed = statement.trim();
+        if (trimmed) sqlite.exec(trimmed);
+      }
+      sqlite
+        .prepare(
+          "INSERT INTO __chombly_migrations(id, applied_at) VALUES(?, ?)",
+        )
+        .run(file, Math.floor(Date.now() / 1000));
+      sqlite.exec("COMMIT");
+    } catch (error) {
+      sqlite.exec("ROLLBACK");
+      throw error;
+    }
   }
-  return nodeDb;
 }
 
-/** D1-compatible DB used by API routes. On Azure/Node uses SQLite file. */
+let nodeDbLoad: Promise<D1Like> | null = null;
+
+function getOrCreateNodeDb(): Promise<D1Like> {
+  if (nodeDb) return Promise.resolve(nodeDb);
+  if (!nodeDbLoad) {
+    nodeDbLoad = createNodeDatabase(resolveSqlitePath()).then((db) => {
+      nodeDb = db;
+      return db;
+    });
+  }
+  return nodeDbLoad;
+}
+
+/**
+ * D1-compatible DB used by API routes.
+ * - Local Vite / Workers: Cloudflare D1 binding (`env.DB`)
+ * - Azure / Node standalone: SQLite file via `node:sqlite`
+ */
 export function database(): D1Like {
   const testDb = (
     globalThis as { __chombyTestEnv?: { DB?: D1Like } }
   ).__chombyTestEnv?.DB;
   if (testDb) return testDb;
-  return getOrCreateNodeDb();
+
+  if (workerEnv?.DB) return workerEnv.DB;
+
+  // Sync callers expect a D1Like immediately. Prefer a sync worker env if the
+  // async import already resolved; otherwise expose a thin proxy that awaits
+  // resolution on first prepare/bind/run (covers cold first request).
+  return createDeferredDatabase();
 }
 
-/** Runtime settings from process.env (App Service Application settings). */
+function createDeferredDatabase(): D1Like {
+  const resolve = async (): Promise<D1Like> => {
+    await loadWorkerEnv();
+    if (workerEnv?.DB) return workerEnv.DB;
+    return getOrCreateNodeDb();
+  };
+
+  const prepare = (sql: string, values: SqlValue[] = []): Prepared => ({
+    bind(...nextValues: SqlValue[]) {
+      return prepare(sql, nextValues);
+    },
+    async first<T = Record<string, unknown>>() {
+      return (await resolve()).prepare(sql).bind(...values).first<T>();
+    },
+    async all<T = Record<string, unknown>>() {
+      return (await resolve()).prepare(sql).bind(...values).all<T>();
+    },
+    async run() {
+      return (await resolve()).prepare(sql).bind(...values).run();
+    },
+  });
+
+  return {
+    prepare(sql: string) {
+      return prepare(sql);
+    },
+    async batch(statements) {
+      return (await resolve()).batch(statements);
+    },
+  };
+}
+
+/** Runtime settings from Workers bindings and/or process.env (Azure App Settings). */
 export function settings(): Record<string, string | undefined> {
   const testEnv = (globalThis as { __chombyTestEnv?: Record<string, string> })
     .__chombyTestEnv;
   return {
+    ...(workerEnv ?? {}),
     ...(testEnv ?? {}),
     ...process.env,
   } as Record<string, string | undefined>;
