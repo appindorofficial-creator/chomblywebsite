@@ -1,8 +1,10 @@
 import type { AudienceId } from "@/config/audiences";
 import { AudienceForm } from "@/components/forms/audience-form";
+import { SITE } from "@/config/site";
 import { metadataForSeoPage } from "@/lib/seo";
 import { isLocale, localizePath, t } from "@/lib/locale";
 import { notFound } from "next/navigation";
+import { ArrowUpRight } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -39,8 +41,8 @@ export default async function JoinPage({
           title: t(raw, "Cuéntanos un poco de ustedes.", "Tell us a bit about you."),
           body: t(
             raw,
-            "Así podremos avisarte cuando Chombly esté listo para dar el siguiente paso contigo.",
-            "So we can let you know when Chombly is ready for the next step with you.",
+            "Puedes abrir la app ahora, o dejarnos tus datos para acompañarte cuando quieras el siguiente paso.",
+            "You can open the app now, or leave your details so we can stay close when you want the next step.",
           ),
           submit: t(raw, "Quiero entrar a Chombly", "I want to join Chombly"),
         }
@@ -103,6 +105,18 @@ export default async function JoinPage({
           <p className="eyebrow">{content.eyebrow}</p>
           <h1>{content.title}</h1>
           <p>{content.body}</p>
+          {defaultAudience === "owner" ? (
+            <p className="join-app-link">
+              <a
+                href={SITE.appWelcomeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t(raw, "Abrir la app Chombly", "Open the Chombly app")}
+                <ArrowUpRight aria-hidden="true" size={16} />
+              </a>
+            </p>
+          ) : null}
           <div className="join-notes">
             <span>01</span>
             <p>

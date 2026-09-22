@@ -19,16 +19,16 @@ export const statuses:Record<string,[string,string]>={requested:['Solicitud reci
 export const statusName=(s:string,l:Lang)=>statuses[s]?.[l==='en'?1:0]||s;
 export function faq(lang:Lang):[string,string][]{return lang==='en'?[
  ['How do I book?','Choose a service, enter your pet and preferred dates, then send a request. A verified professional must offer a time and final price before payment. Track everything in My bookings.'],
- ['Where does Chomby operate?','The initial launch focuses on Bogotá, Colombia. In-person services depend on a professional accepting your neighbourhood and animal.'],
+ ['Where does Chombly operate?','The initial launch focuses on Bogotá, Colombia. In-person services depend on a professional accepting your neighbourhood and animal.'],
  ['How much is a veterinary consultation?','US$10 is a provisional reference, not a charge. The final total in Colombian pesos must appear in your offer before payment. Other services are quoted individually.'],
  ['When is my appointment confirmed?','Only after a professional accepts and the payment provider confirms your payment. Sending a request alone does not book an appointment.'],
  ['Can I cancel or change dates?','You can cancel an unpaid request from My bookings. For a paid booking, request a cancellation for review; a refund is never marked complete automatically. To change dates, cancel the unpaid request and submit new dates.'],
- ['Does the chat diagnose my pet?','No. This assistant answers platform and booking questions using Chomby’s help information. For medical questions, request a veterinarian; emergencies require an in-person veterinary clinic.']
+ ['Does the chat diagnose my pet?','No. This assistant answers platform and booking questions using Chombly’s help information. For medical questions, request a veterinarian; emergencies require an in-person veterinary clinic.']
  ]:[
  ['¿Cómo agendo un servicio?','Elige el servicio, completa los datos de tu animal y tus fechas preferidas, y envía la solicitud. Un profesional revisado debe ofrecerte horario y precio final antes del pago. Sigue el proceso en Mis reservas.'],
- ['¿Dónde funciona Chomby?','El lanzamiento inicial se concentra en Bogotá, Colombia. Los servicios presenciales dependen de que un profesional acepte tu barrio y tu animal.'],
+ ['¿Dónde funciona Chombly?','El lanzamiento inicial se concentra en Bogotá, Colombia. Los servicios presenciales dependen de que un profesional acepte tu barrio y tu animal.'],
  ['¿Cuánto cuesta la consulta veterinaria?','US$10 es una referencia provisional, no un cobro. La propuesta debe mostrar el total final en pesos colombianos antes de pagar. Los demás servicios se cotizan de forma individual.'],
  ['¿Cuándo queda confirmada mi cita?','Cuando el profesional acepta y la pasarela confirma el pago. Enviar una solicitud por sí solo no confirma una cita.'],
  ['¿Puedo cancelar o cambiar las fechas?','Puedes cancelar una solicitud sin pagar desde Mis reservas. Para una reserva pagada, solicita la cancelación para revisión; el reembolso nunca se marca como realizado automáticamente. Para cambiar fechas, cancela la solicitud sin pagar y envía las nuevas fechas.'],
- ['¿El chat diagnostica a mi mascota?','No. Este asistente responde preguntas sobre la plataforma y las reservas con la información de ayuda de Chomby. Para preguntas médicas, solicita un veterinario; las urgencias requieren una clínica veterinaria presencial.']
+ ['¿El chat diagnostica a mi mascota?','No. Este asistente responde preguntas sobre la plataforma y las reservas con la información de ayuda de Chombly. Para preguntas médicas, solicita un veterinario; las urgencias requieren una clínica veterinaria presencial.']
  ]}
