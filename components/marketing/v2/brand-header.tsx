@@ -7,6 +7,7 @@ import { BrandLogo } from "@/components/marketing/v2/brand-logo";
 import { TrackedLink } from "@/components/tracked-link";
 import { LanguageToggle } from "@/components/marketing/language-toggle";
 import { useLocale, useMarketing } from "@/components/marketing/locale-context";
+import { SITE } from "@/config/site";
 import { localizePath, t } from "@/lib/locale";
 
 export function BrandHeader() {
@@ -95,8 +96,10 @@ export function BrandHeader() {
         <div className="v2-header-actions">
           <TrackedLink
             className="v2-button v2-button-compact v2-header-cta"
-            href={localizePath(locale, "/join", "audience=owner")}
-            eventProperties={{ cta_id: "header_owner_interest", placement: "header", audience: "owner" }}
+            href={SITE.appWelcomeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            eventProperties={{ cta_id: "header_open_app", placement: "header", audience: "owner" }}
           >
             {t(locale, "Quiero Chombly", "I want Chombly")}{" "}
             <ArrowUpRight aria-hidden="true" size={16} />
@@ -124,10 +127,12 @@ export function BrandHeader() {
           ))}
           <TrackedLink
             className="v2-button"
-            href={localizePath(locale, "/join", "audience=owner")}
+            href={SITE.appWelcomeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             tabIndex={menuOpen ? 0 : -1}
             onClick={() => setMenuOpen(false)}
-            eventProperties={{ cta_id: "mobile_menu_owner_interest", placement: "mobile_menu", audience: "owner" }}
+            eventProperties={{ cta_id: "mobile_menu_open_app", placement: "mobile_menu", audience: "owner" }}
           >
             {copy.ctas.owner} <ArrowUpRight aria-hidden="true" size={18} />
           </TrackedLink>

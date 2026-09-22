@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { TrackedLink } from "@/components/tracked-link";
 import { useLocale, useMarketing } from "@/components/marketing/locale-context";
+import { SITE } from "@/config/site";
 import { localizePath, t } from "@/lib/locale";
 import { track } from "@/lib/analytics/client";
 import type { LocaleCode } from "@/config/site";
@@ -125,8 +126,24 @@ export function SignatureHero() {
           </h1>
           <p className="v21-hero-descriptor">{copy.home.descriptor}</p>
           <div className="v21-hero-actions">
-            <TrackedLink className="v2-button" href={localizePath(locale, "/join", "audience=owner")} eventProperties={{ cta_id: "hero_owner_interest", placement: "hero", audience: "owner" }}>{copy.ctas.owner}<ArrowRight aria-hidden="true" size={18} /></TrackedLink>
-            <TrackedLink className="v2-text-link" href={localizePath(locale, "/join", "audience=professional")} eventProperties={{ cta_id: "hero_b2b_interest", placement: "hero", audience: "professional" }}>{copy.ctas.b2b}<ArrowUpRight aria-hidden="true" size={17} /></TrackedLink>
+            <TrackedLink
+              className="v2-button"
+              href={SITE.appWelcomeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              eventProperties={{ cta_id: "hero_open_app", placement: "hero", audience: "owner" }}
+            >
+              {copy.ctas.owner}
+              <ArrowRight aria-hidden="true" size={18} />
+            </TrackedLink>
+            <TrackedLink
+              className="v2-text-link"
+              href={localizePath(locale, "/join", "audience=professional")}
+              eventProperties={{ cta_id: "hero_b2b_interest", placement: "hero", audience: "professional" }}
+            >
+              {copy.ctas.b2b}
+              <ArrowUpRight aria-hidden="true" size={17} />
+            </TrackedLink>
           </div>
           <p className="v21-hero-microcopy">{copy.ctas.ownerMicrocopy}</p>
         </div>

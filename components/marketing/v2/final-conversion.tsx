@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { TrackedLink } from "@/components/tracked-link";
 import { SectionBeacon } from "@/components/marketing/v2/section-beacon";
 import { useLocale, useMarketing } from "@/components/marketing/locale-context";
+import { SITE } from "@/config/site";
 import { localizePath } from "@/lib/locale";
 
 export function FinalConversion() {
@@ -19,8 +20,10 @@ export function FinalConversion() {
         <div className="v2-final-actions">
           <TrackedLink
             className="v2-button v2-button-lime"
-            href={localizePath(locale, "/join", "audience=owner")}
-            eventProperties={{ cta_id: "final_owner_interest", placement: "final", audience: "owner" }}
+            href={SITE.appWelcomeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            eventProperties={{ cta_id: "final_open_app", placement: "final", audience: "owner" }}
           >
             {copy.ctas.owner}
             <ArrowRight aria-hidden="true" size={18} />

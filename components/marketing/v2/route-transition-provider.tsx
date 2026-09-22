@@ -38,7 +38,16 @@ export function RouteTransitionProvider({ children }: { children: React.ReactNod
       const target = event.target instanceof Element ? event.target.closest("a") : null;
       const href = target?.getAttribute("href");
       const targetMode = target?.getAttribute("target");
-      if (!href || targetMode === "_blank" || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+      if (
+        !href ||
+        targetMode === "_blank" ||
+        href.startsWith("#") ||
+        href.startsWith("mailto:") ||
+        href.startsWith("tel:") ||
+        /^https?:\/\//i.test(href)
+      ) {
+        return;
+      }
 
       const url = new URL(href, window.location.href);
       if (url.origin !== window.location.origin || url.pathname === window.location.pathname && url.search === window.location.search) return;

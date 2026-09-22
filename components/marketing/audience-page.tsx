@@ -6,8 +6,8 @@ import { TrackedLink } from "@/components/tracked-link";
 import { FaqSection } from "@/components/marketing/v2/faq-section";
 import { useLocale } from "@/components/marketing/locale-context";
 import { seoPages } from "@/config/seo-pages";
+import { SITE, type LocaleCode } from "@/config/site";
 import { localizePath, t } from "@/lib/locale";
-import type { LocaleCode } from "@/config/site";
 
 export type AudiencePageKind =
   | "families"
@@ -58,8 +58,8 @@ function contentFor(kind: AudiencePageKind, locale: LocaleCode): PageContent {
         "Person at home with a dog and a cat",
       ),
       cta: t(locale, "Quiero Chombly para mi mascota", "I want Chombly for my pet"),
-      ctaId: "family_interest",
-      joinPath: join("owner"),
+      ctaId: "family_open_app",
+      joinPath: SITE.appWelcomeUrl,
       chapter: t(locale, "Un lugar para cada momento", "A place for every moment"),
       statement: t(
         locale,
@@ -388,6 +388,8 @@ export function AudiencePage({ kind }: { kind: AudiencePageKind }) {
             <TrackedLink
               className="v2-button"
               href={content.joinPath}
+              target={content.joinPath.startsWith("http") ? "_blank" : undefined}
+              rel={content.joinPath.startsWith("http") ? "noopener noreferrer" : undefined}
               eventProperties={{
                 cta_id: content.ctaId,
                 placement: "audience_hero",
@@ -446,6 +448,8 @@ export function AudiencePage({ kind }: { kind: AudiencePageKind }) {
           <TrackedLink
             className="v2-button v2-button-lime"
             href={content.joinPath}
+            target={content.joinPath.startsWith("http") ? "_blank" : undefined}
+            rel={content.joinPath.startsWith("http") ? "noopener noreferrer" : undefined}
             eventProperties={{
               cta_id: content.ctaId,
               placement: "audience_boundary",
