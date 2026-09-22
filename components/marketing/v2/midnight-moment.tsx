@@ -11,10 +11,10 @@ export function MidnightMoment() {
   const locale = useLocale();
   const copy = useMarketing();
   const path = [
-    t(locale, "Pregunta", "Ask"),
     t(locale, "Orientación", "Guidance"),
-    t(locale, "Próximo paso", "Next step"),
-    t(locale, "Ayuda", "Help"),
+    t(locale, "Perfil familia", "Family profile"),
+    t(locale, "Historia", "History"),
+    t(locale, "Profesionales", "Professionals"),
   ];
 
   return (
@@ -40,8 +40,8 @@ export function MidnightMoment() {
           <p>
             {t(
               locale,
-              "Empieza por orientarte, organiza lo importante y encuentra ayuda profesional cuando haga falta.",
-              "Start with guidance, organize what matters, and find professional help when you need it.",
+              "En la app orientas la duda, armas el perfil de tu familia, guardas lo importante y encuentras ayuda profesional cuando haga falta.",
+              "In the app you clarify the question, build your family profile, keep what matters, and find professional help when you need it.",
             )}
           </p>
         </div>
@@ -49,8 +49,8 @@ export function MidnightMoment() {
           className="v2-midnight-path"
           aria-label={t(
             locale,
-            "Camino desde una pregunta hasta encontrar ayuda",
-            "Path from a question to finding help",
+            "Lo esencial de la app para tu familia",
+            "Essentials of the app for your family",
           )}
         >
           {path.map((item, index) => (
