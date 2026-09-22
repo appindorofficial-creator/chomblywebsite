@@ -24,8 +24,8 @@ export function marketingV2(locale: LocaleCode) {
       ),
       ownerMicrocopy: t(
         locale,
-        "Sé de los primeros en entrar.",
-        "Be among the first to join.",
+        "Abre la app y empieza a explorar.",
+        "Open the app and start exploring.",
       ),
       b2b: t(locale, "Quiero estar en Chombly", "I want to be on Chombly"),
       ownerMoment: t(
@@ -125,8 +125,8 @@ export function marketingV2(locale: LocaleCode) {
       ),
       eggCta: t(
         locale,
-        "Quiero conocer Chombly",
-        "I want to know Chombly",
+        "Abrir la app Chombly",
+        "Open the Chombly app",
       ),
       eggTop: t(locale, "Volver arriba", "Back to top"),
     },

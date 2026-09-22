@@ -381,11 +381,11 @@ export function seoPages(locale: LocaleCode): Record<SeoPageKey, SeoPageDefiniti
     },
     join: {
       path: localizePath(locale, "/join"),
-      title: t(locale, "Quiero entrar a Chombly", "I want to join Chombly"),
+      title: t(locale, "Hablar con Chombly", "Talk with Chombly"),
       description: t(
         locale,
-        "Registra tu interés para acceso temprano como familia, profesional, clínica o aliado.",
-        "Register your interest for early access as a family, professional, clinic, or partner.",
+        "Familias: abre la app o déjanos un contacto. Profesionales, clínicas y aliados: registra tu interés.",
+        "Families: open the app or leave a contact. Professionals, clinics, and partners: register your interest.",
       ),
       breadcrumb: t(locale, "Unirme", "Join"),
       noindex: true,

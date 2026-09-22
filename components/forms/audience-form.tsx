@@ -50,8 +50,6 @@ export function AudienceForm({
 }) {
   const locale = useLocale();
   const schema = useMemo(() => createLeadSchema(locale), [locale]);
-  const resolvedSubmit =
-    submitLabel || t(locale, "Quiero entrar a Chombly", "I want to join Chombly");
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState("");
@@ -111,6 +109,11 @@ export function AudienceForm({
   const audience = watch("audience") || defaultAudience;
   const contactPreference = watch("contactPreference") || "email";
   const audienceField = register("audience");
+  const resolvedSubmit =
+    submitLabel ||
+    (audience === "owner"
+      ? t(locale, "Quiero que me avisen", "I want you to reach out")
+      : t(locale, "Quiero entrar a Chombly", "I want to join Chombly"));
 
   function markStarted() {
     if (started.current) return;
@@ -218,15 +221,15 @@ export function AudienceForm({
         <p className="eyebrow">{t(locale, "Recibido", "Received")}</p>
         <h2>
           {ownerSuccess
-            ? t(locale, "Ya estás más cerca de Chombly. 🐾", "You are closer to Chombly. 🐾")
+            ? t(locale, "Recibimos tus datos. 🐾", "We received your details. 🐾")
             : t(locale, "Nos encantará conocer lo que haces.", "We would love to learn what you do.")}
         </h2>
         <p>
           {ownerSuccess
             ? t(
                 locale,
-                "Puedes entrar a la app ahora, o esperar a que te avisemos cuando haya novedades.",
-                "You can open the app now, or wait until we let you know about what’s next.",
+                "Puedes abrir la app ahora. También te escribiremos por el medio que preferiste.",
+                "You can open the app now. We will also write you on the channel you preferred.",
               )
             : t(
                 locale,

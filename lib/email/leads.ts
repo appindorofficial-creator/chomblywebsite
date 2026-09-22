@@ -50,6 +50,24 @@ function buildConfirmation(lead: LeadMailContext): MailMessage | null {
   const en = localeFromRoute(lead.route) === "en-us";
 
   if (en) {
+    if (lead.audience === "owner") {
+      return {
+        to: email,
+        subject: "We received your Chombly details",
+        text: [
+          `Hi ${lead.name},`,
+          "",
+          "Thanks for writing to Chombly. The app is available whenever you want to explore it. We may also contact you through the channel you preferred.",
+          "",
+          `Audience: ${audienceLabel(lead.audience, true)}`,
+          `City: ${lead.city}`,
+          "",
+          "If you did not send this request, you can ignore this message.",
+          "",
+          "— Chombly",
+        ].join("\n"),
+      };
+    }
     return {
       to: email,
       subject: "We received your Chombly interest",
@@ -62,6 +80,25 @@ function buildConfirmation(lead: LeadMailContext): MailMessage | null {
         `City: ${lead.city}`,
         "",
         "If you did not send this request, you can ignore this message.",
+        "",
+        "— Chombly",
+      ].join("\n"),
+    };
+  }
+
+  if (lead.audience === "owner") {
+    return {
+      to: email,
+      subject: "Recibimos tus datos en Chombly",
+      text: [
+        `Hola ${lead.name},`,
+        "",
+        "Gracias por escribirnos. La app ya está disponible cuando quieras explorarla. También podremos contactarte por el medio que preferiste.",
+        "",
+        `Audiencia: ${audienceLabel(lead.audience, false)}`,
+        `Ciudad: ${lead.city}`,
+        "",
+        "Si no enviaste esta solicitud, puedes ignorar este mensaje.",
         "",
         "— Chombly",
       ].join("\n"),

@@ -38,13 +38,13 @@ export default async function JoinPage({
     defaultAudience === "owner"
       ? {
           eyebrow: t(raw, "Para ti y tu mascota", "For you and your pet"),
-          title: t(raw, "Cuéntanos un poco de ustedes.", "Tell us a bit about you."),
+          title: t(raw, "¿Prefieres que te avisemos?", "Prefer that we reach out?"),
           body: t(
             raw,
-            "Puedes abrir la app ahora, o dejarnos tus datos para acompañarte cuando quieras el siguiente paso.",
-            "You can open the app now, or leave your details so we can stay close when you want the next step.",
+            "La app ya está disponible. Si quieres, déjanos tus datos y te escribimos por el canal que elijas.",
+            "The app is already available. If you want, leave your details and we will write you on the channel you prefer.",
           ),
-          submit: t(raw, "Quiero entrar a Chombly", "I want to join Chombly"),
+          submit: t(raw, "Quiero que me avisen", "I want you to reach out"),
         }
       : defaultAudience === "professional"
         ? {
@@ -120,19 +120,31 @@ export default async function JoinPage({
           <div className="join-notes">
             <span>01</span>
             <p>
-              {t(
-                raw,
-                "Elige cómo formas parte del universo pet.",
-                "Choose how you are part of the pet universe.",
-              )}
+              {defaultAudience === "owner"
+                ? t(
+                    raw,
+                    "Abrir la app es el camino más directo para empezar.",
+                    "Opening the app is the most direct way to start.",
+                  )
+                : t(
+                    raw,
+                    "Elige cómo formas parte del universo pet.",
+                    "Choose how you are part of the pet universe.",
+                  )}
             </p>
             <span>02</span>
             <p>
-              {t(
-                raw,
-                "Comparte solo la información necesaria.",
-                "Share only the information needed.",
-              )}
+              {defaultAudience === "owner"
+                ? t(
+                    raw,
+                    "Este formulario es opcional: solo si quieres que te contactemos.",
+                    "This form is optional: only if you want us to contact you.",
+                  )
+                : t(
+                    raw,
+                    "Comparte solo la información necesaria.",
+                    "Share only the information needed.",
+                  )}
             </p>
             <span>03</span>
             <p>
