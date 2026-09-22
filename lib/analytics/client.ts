@@ -9,7 +9,9 @@ import { sanitizeProperties } from "@/lib/analytics/events";
 declare global {
   interface Window {
     posthog?: {
+      init?: (apiKey: string, options: Record<string, unknown>) => void;
       capture: (event: string, properties?: Record<string, unknown>) => void;
+      __loaded?: boolean;
     };
     __CHOMBLY_ANALYTICS__?: {
       name: string;

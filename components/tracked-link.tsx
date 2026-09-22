@@ -12,7 +12,7 @@ type Props = LinkProps &
 
 function isExternalHref(href: LinkProps["href"]): boolean {
   const value = typeof href === "string" ? href : href.pathname || "";
-  return /^https?:\/\//i.test(value);
+  return /^(https?:|mailto:|tel:|sms:)/i.test(value);
 }
 
 export function TrackedLink({
@@ -28,16 +28,18 @@ export function TrackedLink({
     onClick?.(event);
   }
 
-  // Native anchor for absolute URLs so target=_blank reliably opens a new tab.
+  // Native anchor for absolute / protocol URLs (http, mailto, tel).
   if (isExternalHref(href)) {
-    const externalTarget = target ?? "_blank";
+    const value = typeof href === "string" ? href : String(href);
+    const isWeb = /^https?:\/\//i.test(value);
+    const externalTarget = target ?? (isWeb ? "_blank" : undefined);
     const externalRel =
       rel ??
       (externalTarget === "_blank" ? "noopener noreferrer" : undefined);
     return (
       <a
         {...props}
-        href={typeof href === "string" ? href : String(href)}
+        href={value}
         target={externalTarget}
         rel={externalRel}
         onClick={handleClick}

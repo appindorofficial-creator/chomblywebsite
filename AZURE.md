@@ -20,6 +20,9 @@ Publicar este sitio (Next.js / Vinext standalone) en el App Service `chomblywebs
 | `NEXT_PUBLIC_CHOMBLY_INDEXING_ENABLED` | `false` |
 | `NEXT_PUBLIC_CHOMBLY_BASE_URL` | URL pública real, p. ej. `https://chomblywebsite-aga4dshkgcdhctdp.westus3-01.azurewebsites.net` (o `https://www.chombly.com` cuando exista). Define canonicals, sitemap y OG. |
 | `NEXT_PUBLIC_CHOMBLY_APP_WELCOME_URL` | App producto, p. ej. `https://chombly-dqdzd0h4escvhyfe.westus3-01.azurewebsites.net/Welcome` |
+| `NEXT_PUBLIC_CHOMBLY_WHATSAPP` | (Opcional) Solo dígitos internacionales, p. ej. `573001234567` → CTA WhatsApp post-formulario |
+| `NEXT_PUBLIC_POSTHOG_KEY` / `NEXT_PUBLIC_POSTHOG_HOST` | (Opcional) Activa analytics PostHog en el front |
+| `CHOMBLY_LEADS_ADMIN_TOKEN` | Token (≥16 chars) para `/es-co/leads` y `GET /api/leads/admin` |
 | `CHOMBLY_LEGACY_PRODUCT_ENABLED` | `false` |
 | `CHOMBLY_PAYMENTS_ENABLED` | `false` |
 | `CHOMBLY_CRM_ADAPTER` | `local` |

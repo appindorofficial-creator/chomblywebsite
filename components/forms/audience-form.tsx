@@ -6,9 +6,10 @@ import { useForm, type FieldErrors, type UseFormRegister } from "react-hook-form
 import { ArrowRight, CircleCheck, LoaderCircle } from "lucide-react";
 import type { AudienceId } from "@/config/audiences";
 import type { ExperimentId } from "@/config/experiments";
-import type { LocaleCode } from "@/config/site";
+import { SITE, type LocaleCode } from "@/config/site";
+import { TrackedLink } from "@/components/tracked-link";
 import { useLocale } from "@/components/marketing/locale-context";
-import { t } from "@/lib/locale";
+import { localizePath, t } from "@/lib/locale";
 import { createLeadSchema, type LeadFormInput, type LeadInput } from "@/lib/leads/schema";
 import { track } from "@/lib/analytics/client";
 import { createIdempotencyKey } from "@/lib/ids";
@@ -198,6 +199,19 @@ export function AudienceForm({
 
   if (submitted) {
     const ownerSuccess = audience === "owner";
+    const whatsappHref = SITE.whatsappUrl
+      ? `${SITE.whatsappUrl}${SITE.whatsappUrl.includes("?") ? "&" : "?"}text=${encodeURIComponent(
+          t(
+            locale,
+            "Hola Chombly, acabo de registrarme como profesional y quiero saber el siguiente paso.",
+            "Hi Chombly, I just registered as a professional and want to know the next step.",
+          ),
+        )}`
+      : "";
+    const mailHref = `mailto:${SITE.operationalEmail}?subject=${encodeURIComponent(
+      t(locale, "Registro Chombly", "Chombly registration"),
+    )}`;
+
     return (
       <div className="form-success" role="status">
         <CircleCheck aria-hidden="true" />
@@ -211,15 +225,83 @@ export function AudienceForm({
           {ownerSuccess
             ? t(
                 locale,
-                "Te avisaremos cuando llegue el momento de entrar.",
-                "We will let you know when it is time to join.",
+                "Puedes entrar a la app ahora, o esperar a que te avisemos cuando haya novedades.",
+                "You can open the app now, or wait until we let you know about what’s next.",
               )
             : t(
                 locale,
-                "Recibimos tu información. Nuestro equipo podrá ponerse en contacto contigo por el medio que elegiste.",
-                "We received your information. Our team may contact you through the channel you chose.",
+                "Recibimos tu información. Mientras tanto, puedes escribirnos por el canal que prefieras.",
+                "We received your information. Meanwhile, you can reach us through the channel you prefer.",
               )}
         </p>
+        <div className="form-success-actions">
+          {ownerSuccess ? (
+            <TrackedLink
+              className="button form-success-primary"
+              href={SITE.appWelcomeUrl}
+              eventProperties={{
+                cta_id: "success_owner_welcome",
+                placement: "form_success",
+                audience: "owner",
+                form_id: "early_access",
+              }}
+            >
+              {t(locale, "Abrir Chombly", "Open Chombly")}
+              <ArrowRight aria-hidden="true" size={18} />
+            </TrackedLink>
+          ) : (
+            <>
+              {whatsappHref ? (
+                <TrackedLink
+                  className="button form-success-primary"
+                  href={whatsappHref}
+                  eventProperties={{
+                    cta_id: "success_whatsapp",
+                    placement: "form_success",
+                    audience,
+                    form_id: "early_access",
+                  }}
+                >
+                  {t(locale, "Escribir por WhatsApp", "Message on WhatsApp")}
+                  <ArrowRight aria-hidden="true" size={18} />
+                </TrackedLink>
+              ) : (
+                <TrackedLink
+                  className="button form-success-primary"
+                  href={mailHref}
+                  eventProperties={{
+                    cta_id: "success_email",
+                    placement: "form_success",
+                    audience,
+                    form_id: "early_access",
+                  }}
+                >
+                  {t(locale, "Escribirnos por correo", "Email us")}
+                  <ArrowRight aria-hidden="true" size={18} />
+                </TrackedLink>
+              )}
+              <TrackedLink
+                className="button form-success-secondary"
+                href={localizePath(
+                  locale,
+                  audience === "clinic"
+                    ? "/clinics"
+                    : audience === "partner"
+                      ? "/partners"
+                      : "/professionals",
+                )}
+                eventProperties={{
+                  cta_id: "success_audience_home",
+                  placement: "form_success",
+                  audience,
+                  form_id: "early_access",
+                }}
+              >
+                {t(locale, "Seguir explorando", "Keep exploring")}
+              </TrackedLink>
+            </>
+          )}
+        </div>
       </div>
     );
   }

@@ -3,12 +3,11 @@
 import { useEffect, useRef } from "react";
 import { ArrowUp, ArrowUpRight } from "lucide-react";
 import { TrackedLink } from "@/components/tracked-link";
-import { useLocale, useMarketing } from "@/components/marketing/locale-context";
-import { localizePath } from "@/lib/locale";
+import { useMarketing } from "@/components/marketing/locale-context";
+import { SITE } from "@/config/site";
 import { track } from "@/lib/analytics/client";
 
 export function FooterEasterEgg() {
-  const locale = useLocale();
   const copy = useMarketing();
   const ref = useRef<HTMLElement>(null);
 
@@ -38,9 +37,9 @@ export function FooterEasterEgg() {
         <p>{copy.footer.eggBody}</p>
         <TrackedLink
           className="v2-egg-cta"
-          href={localizePath(locale, "/join", "audience=owner")}
+          href={SITE.appWelcomeUrl}
           eventProperties={{
-            cta_id: "footer_egg_join",
+            cta_id: "footer_egg_welcome",
             placement: "footer_easter_egg",
             audience: "owner",
           }}

@@ -22,6 +22,13 @@ export const SITE = {
   appWelcomeUrl:
     process.env.NEXT_PUBLIC_CHOMBLY_APP_WELCOME_URL?.replace(/\/$/, "") ||
     "https://chombly-dqdzd0h4escvhyfe.westus3-01.azurewebsites.net/Welcome",
+  /** Optional WhatsApp deep link for professional follow-up (wa.me/…). */
+  whatsappUrl: (() => {
+    const configured = process.env.NEXT_PUBLIC_CHOMBLY_WHATSAPP_URL?.trim();
+    if (configured) return configured.replace(/\/$/, "");
+    const digits = process.env.NEXT_PUBLIC_CHOMBLY_WHATSAPP?.replace(/\D/g, "");
+    return digits ? `https://wa.me/${digits}` : "";
+  })(),
   operationalEmail:
     process.env.NEXT_PUBLIC_CHOMBLY_CONTACT_EMAIL || "Chomblypet@gmail.com",
   associatedOrganization:

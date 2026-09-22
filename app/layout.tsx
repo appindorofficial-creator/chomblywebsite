@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageViewBeacon } from "@/components/analytics-beacon";
+import { PostHogInit } from "@/components/posthog-init";
 import { SITE, SITE_MODE } from "@/config/site";
 import { BRAND_DESCRIPTION, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import "./globals.css";
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a className="skip-link" href="#main-content">
           Saltar al contenido
         </a>
+        <PostHogInit />
         <PageViewBeacon siteMode={SITE_MODE} />
         {children}
       </body>
