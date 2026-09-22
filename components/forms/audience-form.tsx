@@ -369,7 +369,7 @@ export function AudienceForm({
         </label>
         <label>
           <input type="radio" value="phone" {...register("contactPreference")} />{" "}
-          {t(locale, "Teléfono", "Phone")}
+          {t(locale, "WhatsApp", "Phone / text")}
         </label>
       </fieldset>
 
@@ -381,10 +381,16 @@ export function AudienceForm({
           <input type="email" autoComplete="email" {...register("email")} />
         </Field>
         <Field
-          label={`${t(locale, "Teléfono", "Phone")}${contactPreference === "phone" ? " *" : ""}`}
+          label={`${t(locale, "WhatsApp / celular", "Phone / SMS")}${contactPreference === "phone" ? " *" : ""}`}
           error={errors.phone?.message}
         >
-          <input type="tel" autoComplete="tel" {...register("phone")} />
+          <input
+            type="tel"
+            autoComplete="tel"
+            inputMode="tel"
+            placeholder={t(locale, "300 123 4567", "+1 555 123 4567")}
+            {...register("phone")}
+          />
         </Field>
       </div>
 

@@ -30,6 +30,7 @@ export function isValidEmail(value: string): boolean {
 /**
  * Phone check for Colombia (+57 / 3xx…) and general E.164-style numbers.
  * Accepts formatting spaces, dashes, parentheses.
+ * In es-CO the same number is treated as WhatsApp; in en-US as phone/SMS.
  */
 export function isValidPhone(value: string): boolean {
   const trimmed = value.trim();
@@ -83,8 +84,8 @@ function optionalPhone(locale: LocaleCode) {
           code: z.ZodIssueCode.custom,
           message: t(
             locale,
-            "Ingresa un teléfono válido (ej. 3001234567 o +57 300 123 4567).",
-            "Enter a valid phone (e.g. 3001234567 or +57 300 123 4567).",
+            "Ingresa un WhatsApp válido (ej. 3001234567 o +57 300 123 4567).",
+            "Enter a valid phone (e.g. 3001234567 or +1 555 123 4567).",
           ),
         });
       }
@@ -191,7 +192,7 @@ export function createLeadSchema(locale: LocaleCode = "es-co") {
             path: ["phone"],
             message: t(
               locale,
-              "Necesitamos un teléfono válido.",
+              "Necesitamos un WhatsApp válido.",
               "We need a valid phone number.",
             ),
           });
@@ -201,8 +202,8 @@ export function createLeadSchema(locale: LocaleCode = "es-co") {
             path: ["phone"],
             message: t(
               locale,
-              "Ingresa un teléfono válido (ej. 3001234567 o +57 300 123 4567).",
-              "Enter a valid phone (e.g. 3001234567 or +57 300 123 4567).",
+              "Ingresa un WhatsApp válido (ej. 3001234567 o +57 300 123 4567).",
+              "Enter a valid phone (e.g. 3001234567 or +1 555 123 4567).",
             ),
           });
         }
@@ -225,8 +226,8 @@ export function createLeadSchema(locale: LocaleCode = "es-co") {
           path: ["phone"],
           message: t(
             locale,
-            "Ingresa un teléfono válido (ej. 3001234567 o +57 300 123 4567).",
-            "Enter a valid phone (e.g. 3001234567 or +57 300 123 4567).",
+            "Ingresa un WhatsApp válido (ej. 3001234567 o +57 300 123 4567).",
+            "Enter a valid phone (e.g. 3001234567 or +1 555 123 4567).",
           ),
         });
       }

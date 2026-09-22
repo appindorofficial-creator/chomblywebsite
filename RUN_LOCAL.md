@@ -18,7 +18,7 @@ npm run dev
 Para inicializar D1 local cuando se prueben formularios:
 
 ```bash
-npm exec wrangler d1 migrations apply DB --local
+npm exec wrangler d1 migrations apply DB --local --config wrangler.d1.jsonc
 ```
 
 Preview compatible con ChatGPT Sites:
